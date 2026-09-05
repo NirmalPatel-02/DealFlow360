@@ -35,3 +35,8 @@ require_customer_management = require_roles(
 require_admin = require_roles(UserRole.ADMIN)
 
 require_manager = require_roles(UserRole.SALES_MANAGER, UserRole.ADMIN)
+
+require_finance_ops = require_roles(
+    UserRole.FINANCE_OPS,
+    UserRole.ADMIN,
+)

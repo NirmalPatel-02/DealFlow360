@@ -42,3 +42,25 @@ class ApprovalStatus(str, Enum):
     APPROVED = "approved"
     REJECTED = "rejected"
     RETURNED = "returned"
+
+class FulfillmentPlanStatus(str, Enum):
+    PROPOSED = "proposed"
+    ACCEPTED = "accepted"
+    PARTIALLY_FULFILLED = "partially_fulfilled"
+    FULFILLED = "fulfilled"
+    BACKORDERED = "backordered"
+    CANCELLED = "cancelled"
+
+
+class FulfillmentAllocationStatus(str, Enum):
+    RESERVED = "reserved"
+    PARTIALLY_FULFILLED = "partially_fulfilled"
+    FULFILLED = "fulfilled"
+    CANCELLED = "cancelled"
+
+
+class BackorderStatus(str, Enum):
+    OPEN = "open"
+    ALLOCATED = "allocated"
+    FULFILLED = "fulfilled"
+    CANCELLED = "cancelled"

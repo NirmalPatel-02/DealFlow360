@@ -13,6 +13,8 @@ from app.api.discount_governance import router as discount_governance_router
 from app.api.quotations import router as quotations_router
 from app.api.approvals import router as approvals_router
 from app.api.recommendations import router as recommendations_router
+from app.api.fulfillment import router as fulfillment_router
+
 
 
 @asynccontextmanager
@@ -47,6 +49,7 @@ app.include_router(discount_governance_router)
 app.include_router(quotations_router)
 app.include_router(approvals_router)
 app.include_router(recommendations_router)
+app.include_router(fulfillment_router)
 
 @app.get("/health")
 async def health():

@@ -30,7 +30,12 @@ from app.models.audit_log import AuditLog
 from app.models.product_recommendation import ProductRecommendationRule
 from app.models.promotion import Promotion
 from app.models.recommendation_event import RecommendationEvent
-
+from app.models.warehouse import Warehouse
+from app.models.inventory_stock import InventoryStock
+from app.models.replenishment_rule import ReplenishmentRule
+from app.models.fulfillment_plan import FulfillmentPlan
+from app.models.fulfillment_allocation import FulfillmentAllocation
+from app.models.backorder import Backorder
 
 __all__ = [
     "User",
