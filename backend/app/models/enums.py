@@ -16,3 +16,7 @@ class ProductType(str, Enum):
     HARDWARE = "hardware"
     SERVICE = "service"
     SUBSCRIPTION = "subscription"
+
+class ApprovalLevel(str, Enum):
+    MANAGER = "manager"
+    MANAGER_FINANCE = "manager_finance"

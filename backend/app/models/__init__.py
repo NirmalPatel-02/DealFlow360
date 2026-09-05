@@ -20,6 +20,9 @@ from app.models.billing import (
     Subscription,
     SubscriptionPlan,
 )
+from app.models.approval_chain import ApprovalChain
+from app.models.approval_band import ApprovalBand
+from app.models.discount_rule import DiscountRule
 
 __all__ = [
     "User",
