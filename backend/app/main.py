@@ -10,6 +10,8 @@ from app.db.session import engine
 from app.api.customers import router as customers_router
 from app.api.catalog import router as catalog_router
 from app.api.discount_governance import router as discount_governance_router
+from app.api.quotations import router as quotations_router
+from app.api.approvals import router as approvals_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -35,12 +37,13 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type"],
 )
 
-
 app.include_router(api_router)
 app.include_router(customers_router)
 app.include_router(catalog_router)
 app.include_router(billing_router, prefix="/api")
 app.include_router(discount_governance_router)
+app.include_router(quotations_router)
+app.include_router(approvals_router)
 
 @app.get("/health")
 async def health():

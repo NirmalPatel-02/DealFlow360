@@ -23,6 +23,11 @@ from app.models.billing import (
 from app.models.approval_chain import ApprovalChain
 from app.models.approval_band import ApprovalBand
 from app.models.discount_rule import DiscountRule
+from app.models.quotation import Quotation
+from app.models.quote_line import QuoteLine
+from app.models.quote_approval import QuoteApproval
+from app.models.audit_log import AuditLog
+
 
 __all__ = [
     "User",
