@@ -135,11 +135,11 @@ export function submitQuoteForApproval(quoteId) {
 
 /**
  * Act on an approval (approve, reject, return)
- * POST /api/approvals/{approval_id}
+ * POST /api/approvals/quotes/{quote_id}/action
  * Body: { action: 'approve|reject|return', reason?: string }
  */
-export function actOnApproval(approvalId, action, reason = null) {
-  return apiRequest(`${APPROVALS_BASE}/quotes/${approvalId}/action`, {
+export function actOnApproval(quoteId, action, reason = null) {
+  return apiRequest(`${APPROVALS_BASE}/quotes/${quoteId}/action`, {
     method: 'POST',
     body: {
       action,
@@ -152,6 +152,17 @@ export function actOnApproval(approvalId, action, reason = null) {
 export function listQuoteApprovals(quoteId) {
   return apiRequest(`${APPROVALS_BASE}/quotes/${quoteId}`, {
     method: 'GET',
+    auth: true,
+  });
+}
+
+/**
+ * Share approved quotation with customer contact
+ * POST /api/portal/quotes/{quote_id}/share?contact_id=...
+ */
+export function shareQuote(quoteId, contactId) {
+  return apiRequest(`/api/portal/quotes/${quoteId}/share?contact_id=${contactId}`, {
+    method: 'POST',
     auth: true,
   });
 }
@@ -173,4 +184,8 @@ export default {
   submitQuoteForApproval,
   actOnApproval,
   listQuoteApprovals,
+
+  // Portal Share
+  shareQuote,
 };
+

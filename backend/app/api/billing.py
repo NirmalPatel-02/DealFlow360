@@ -14,7 +14,7 @@ from app.schemas.billing import (
     RefundCreate, SubscriptionCreate, SubscriptionModify,
 )
 from app.services.billing import (
-    create_invoice, create_order, create_subscription, modify_subscription,
+    create_invoice, create_order, create_order_from_quote, create_subscription, modify_subscription,
     generate_recurring_invoice, record_payment, refund_payment,
 )
 
@@ -22,7 +22,7 @@ router = APIRouter(tags=["Billing"])
 
 
 def ensure_billing_role(user: User = Depends(get_current_user)) -> User:
-    if user.role not in {"finance", "admin", "sales", "sales_rep", "sales_manager"}:
+    if user.role not in {"finance", "finance_ops", "admin", "sales", "sales_rep", "sales_manager"}:
         from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="Billing access is restricted")
     return user
@@ -37,6 +37,133 @@ async def create_order_endpoint(payload: OrderCreate, db: AsyncSession = Depends
     order = await create_order(db, payload, user.id)
     await db.commit()
     return success({"id": order.id, "orderNumber": order.order_number, "totalAmount": order.total_amount}, "Order created successfully")
+
+
+@router.post("/orders/from-quote/{quote_id}", status_code=status.HTTP_201_CREATED)
+async def create_order_from_quote_endpoint(
+    quote_id: str,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(ensure_billing_role),
+):
+    order = await create_order_from_quote(db, quote_id, user.id)
+    await db.commit()
+    result = await db.execute(
+        select(Order)
+        .options(selectinload(Order.items))
+        .where(Order.id == order.id)
+    )
+    loaded_order = result.scalar_one()
+    return success(
+        {
+            "id": loaded_order.id,
+            "orderNumber": loaded_order.order_number,
+            "quotationId": loaded_order.quotation_id,
+            "status": loaded_order.status,
+            "currency": loaded_order.currency,
+            "totalAmount": loaded_order.total_amount,
+            "itemsCount": len(loaded_order.items),
+        },
+        "Order created from quotation successfully",
+    )
+
+
+@router.get("/orders")
+async def list_orders(
+    customerId: str | None = None,
+    quotationId: str | None = None,
+    order_status: str | None = Query(default=None, alias="status"),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(ensure_billing_role),
+):
+    query = select(Order).options(selectinload(Order.items)).order_by(Order.created_at.desc())
+    if customerId:
+        query = query.where(Order.customer_id == customerId)
+    if quotationId:
+        query = query.where(Order.quotation_id == quotationId)
+    if order_status:
+        query = query.where(Order.status == order_status)
+    result = await db.execute(query)
+    orders = result.scalars().all()
+    return success(orders, "Orders retrieved successfully")
+
+
+@router.get("/orders/{order_id}")
+async def get_order_endpoint(
+    order_id: str,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(ensure_billing_role),
+):
+    result = await db.execute(
+        select(Order)
+        .options(
+            selectinload(Order.items),
+            selectinload(Order.invoices),
+            selectinload(Order.subscriptions),
+        )
+        .where(Order.id == order_id)
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        from fastapi import HTTPException
+        raise HTTPException(404, "Order not found")
+    return success(order, "Order retrieved successfully")
+
+
+@router.get("/orders/by-quote/{quote_id}")
+async def get_order_by_quote(
+    quote_id: str,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(ensure_billing_role),
+):
+    result = await db.execute(
+        select(Order)
+        .options(selectinload(Order.items), selectinload(Order.invoices))
+        .where(Order.quotation_id == quote_id)
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        from fastapi import HTTPException
+        raise HTTPException(404, "No order found for this quotation")
+    return success(order, "Order retrieved successfully")
+
+
+@router.get("/subscription-plans")
+async def list_subscription_plans(
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(ensure_billing_role),
+):
+    result = await db.execute(
+        select(SubscriptionPlan)
+        .where(SubscriptionPlan.active == True)
+        .order_by(SubscriptionPlan.name)
+    )
+    return success(result.scalars().all(), "Subscription plans retrieved successfully")
+
+
+@router.get("/subscriptions")
+async def list_subscriptions(
+    customerId: str | None = None,
+    orderId: str | None = None,
+    sub_status: str | None = Query(default=None, alias="status"),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(ensure_billing_role),
+):
+    query = (
+        select(Subscription)
+        .options(
+            selectinload(Subscription.plan),
+            selectinload(Subscription.schedules),
+        )
+        .order_by(Subscription.created_at.desc())
+    )
+    if customerId:
+        query = query.where(Subscription.customer_id == customerId)
+    if orderId:
+        query = query.where(Subscription.order_id == orderId)
+    if sub_status:
+        query = query.where(Subscription.status == sub_status)
+    result = await db.execute(query)
+    return success(result.scalars().all(), "Subscriptions retrieved successfully")
 
 
 @router.post("/subscription-plans", status_code=status.HTTP_201_CREATED)

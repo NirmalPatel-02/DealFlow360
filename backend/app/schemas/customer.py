@@ -52,6 +52,7 @@ class ContactCreate(BaseModel):
     phone: str | None = Field(default=None, max_length=30)
     job_title: str | None = Field(default=None, max_length=100)
     is_primary: bool = False
+    portal_enabled: bool = True
 
 
 class ContactUpdate(BaseModel):
@@ -60,6 +61,7 @@ class ContactUpdate(BaseModel):
     phone: str | None = Field(default=None, max_length=30)
     job_title: str | None = Field(default=None, max_length=100)
     is_primary: bool | None = None
+    portal_enabled: bool | None = None
 
 
 class ContactResponse(BaseModel):

@@ -73,7 +73,7 @@ async def list_all(
 ):
     return await list_quotations(
         db,
-        user.id,
+        user,
         status_value,
         customer_id,
     )

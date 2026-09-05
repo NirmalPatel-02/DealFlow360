@@ -392,7 +392,7 @@ async def get_recommendations(
 
     # Use a broader candidate set if needed by future rule expansion.
     for rule in rules:
-        product = rule.suggested_product
+        product = await db.get(Product, rule.suggested_product_id)
 
         if not product or not product.is_active:
             continue

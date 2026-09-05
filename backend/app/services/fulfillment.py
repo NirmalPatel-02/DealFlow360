@@ -2,6 +2,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from itertools import combinations
 
 from sqlalchemy import desc, select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from decimal import Decimal, ROUND_HALF_UP
 from itertools import combinations
@@ -828,9 +829,12 @@ async def create_fulfillment_plan(
             )
 
     await db.commit()
-    await db.refresh(plan)
-
-    return plan
+    refreshed_plan = await db.scalar(
+        select(FulfillmentPlan)
+        .options(selectinload(FulfillmentPlan.allocations))
+        .where(FulfillmentPlan.id == plan.id)
+    )
+    return refreshed_plan or plan
 
 
 async def accept_fulfillment_plan(
@@ -903,9 +907,12 @@ async def accept_fulfillment_plan(
     plan.accepted_at = utcnow()
 
     await db.commit()
-    await db.refresh(plan)
-
-    return plan
+    refreshed_plan = await db.scalar(
+        select(FulfillmentPlan)
+        .options(selectinload(FulfillmentPlan.allocations))
+        .where(FulfillmentPlan.id == plan.id)
+    )
+    return refreshed_plan or plan
 
 
 async def fulfill_allocation(

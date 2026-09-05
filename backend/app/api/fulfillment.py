@@ -1,7 +1,8 @@
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import desc, select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.warehouse import FulfillmentManualOverrideRequest
 from app.api.dependencies import (
@@ -469,6 +470,57 @@ async def accept_fulfillment_plan_route(
 
 
 @router.get(
+    "/fulfillment/plans",
+    response_model=list[FulfillmentPlanResponse],
+)
+async def list_fulfillment_plans_route(
+    quotation_id: str | None = None,
+    status_value: str | None = Query(default=None, alias="status"),
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_internal_user),
+):
+    query = (
+        select(FulfillmentPlan)
+        .options(selectinload(FulfillmentPlan.allocations))
+        .order_by(desc(FulfillmentPlan.created_at))
+    )
+
+    if quotation_id:
+        query = query.where(FulfillmentPlan.quotation_id == quotation_id)
+
+    if status_value:
+        query = query.where(FulfillmentPlan.status == status_value)
+
+    result = await db.scalars(query)
+    return list(result.all())
+
+
+@router.get(
+    "/fulfillment/quotes/{quote_id}/plan",
+    response_model=FulfillmentPlanResponse,
+)
+async def get_quote_fulfillment_plan_route(
+    quote_id: str,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_internal_user),
+):
+    plan = await db.scalar(
+        select(FulfillmentPlan)
+        .options(selectinload(FulfillmentPlan.allocations))
+        .where(FulfillmentPlan.quotation_id == quote_id)
+        .order_by(desc(FulfillmentPlan.created_at))
+    )
+
+    if not plan:
+        raise HTTPException(
+            status_code=404,
+            detail="Fulfillment plan not found for quotation.",
+        )
+
+    return plan
+
+
+@router.get(
     "/fulfillment/plans/{plan_id}",
     response_model=FulfillmentPlanResponse,
 )
@@ -477,9 +529,10 @@ async def get_fulfillment_plan_route(
     db: AsyncSession = Depends(get_db),
     _: User = Depends(require_internal_user),
 ):
-    plan = await db.get(
-        FulfillmentPlan,
-        plan_id,
+    plan = await db.scalar(
+        select(FulfillmentPlan)
+        .options(selectinload(FulfillmentPlan.allocations))
+        .where(FulfillmentPlan.id == plan_id)
     )
 
     if not plan:
@@ -614,108 +667,37 @@ async def cancel_fulfillment_plan_route(
             detail=str(exc),
         ) from exc
     
-async def manual_override_allocation(
-    db: AsyncSession,
-    plan: FulfillmentPlan,
-    quote_line_id: str,
-    warehouse_id: str,
-    quantity: Decimal,
-) -> FulfillmentAllocation:
-    if plan.status != FulfillmentPlanStatus.PROPOSED:
-        raise ValueError(
-            "Manual override is only allowed on a proposed plan."
-        )
-
-    quote_line = await db.get(
-        QuoteLine,
-        quote_line_id,
+@router.post(
+    "/fulfillment/plans/{plan_id}/override",
+    response_model=FulfillmentAllocationResponse,
+)
+async def manual_override_allocation_route(
+    plan_id: str,
+    data: FulfillmentManualOverrideRequest,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_finance_ops),
+):
+    plan = await db.get(
+        FulfillmentPlan,
+        plan_id,
     )
 
-    if not quote_line:
-        raise ValueError(
-            "Quote line not found."
+    if not plan:
+        raise HTTPException(
+            status_code=404,
+            detail="Fulfillment plan not found.",
         )
 
-    product = await db.get(
-        Product,
-        quote_line.product_id,
-    )
-
-    if not product or product.product_type != ProductType.HARDWARE:
-        raise ValueError(
-            "Only physical hardware lines require warehouse allocation."
+    try:
+        return await manual_override_allocation(
+            db,
+            plan,
+            data.quote_line_id,
+            data.warehouse_id,
+            data.quantity,
         )
-
-    existing_allocated = await db.scalar(
-        select(FulfillmentAllocation).where(
-            FulfillmentAllocation.fulfillment_plan_id == plan.id,
-            FulfillmentAllocation.quote_line_id == quote_line_id,
-        )
-    )
-
-    current_total = Decimal("0")
-
-    if existing_allocated:
-        current_total = existing_allocated.allocated_quantity
-
-    total_after_override = (
-        current_total + quantity
-    )
-
-    if total_after_override > quote_line.quantity:
-        raise ValueError(
-            "Manual allocation exceeds the quote line quantity."
-        )
-
-    stock = await get_available_stock(
-        db,
-        warehouse_id,
-        product.id,
-        quote_line.variant_id,
-    )
-
-    if not stock:
-        raise ValueError(
-            "No inventory record exists for this warehouse/product."
-        )
-
-    available = (
-        stock.quantity_on_hand
-        - stock.quantity_reserved
-    )
-
-    if quantity > available:
-        raise ValueError(
-            "Requested override quantity exceeds available stock."
-        )
-
-    warehouse = await db.get(
-        Warehouse,
-        warehouse_id,
-    )
-
-    if not warehouse or not warehouse.is_active:
-        raise ValueError(
-            "Active warehouse not found."
-        )
-
-    allocation = FulfillmentAllocation(
-        fulfillment_plan_id=plan.id,
-        quote_line_id=quote_line_id,
-        warehouse_id=warehouse_id,
-        requested_quantity=quote_line.quantity,
-        allocated_quantity=quantity,
-        shipment_cost=_warehouse_cost(
-            warehouse,
-            quantity,
-        ),
-        manual_override=True,
-        status=FulfillmentAllocationStatus.RESERVED,
-    )
-
-    db.add(allocation)
-
-    await db.commit()
-    await db.refresh(allocation)
-
-    return allocation
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc),
+        ) from exc

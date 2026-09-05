@@ -29,12 +29,19 @@ require_internal_user = require_roles(
 require_customer_management = require_roles(
     UserRole.SALES_REP,
     UserRole.SALES_MANAGER,
+    UserRole.FINANCE_OPS,
     UserRole.ADMIN,
 )
 
 require_admin = require_roles(UserRole.ADMIN)
 
 require_manager = require_roles(UserRole.SALES_MANAGER, UserRole.ADMIN)
+
+require_approver = require_roles(
+    UserRole.SALES_MANAGER,
+    UserRole.FINANCE_OPS,
+    UserRole.ADMIN,
+)
 
 require_finance_ops = require_roles(
     UserRole.FINANCE_OPS,

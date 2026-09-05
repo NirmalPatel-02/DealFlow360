@@ -6,7 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.customer import Customer
-from app.models.enums import QuoteStatus
+from app.models.enums import QuoteStatus, UserRole
+from app.models.user import User
 from app.models.price_list import PriceList
 from app.models.price_list_item import PriceListItem
 from app.models.product import Product
@@ -32,7 +33,7 @@ def money(value: Decimal) -> Decimal:
 async def generate_quote_number(db: AsyncSession) -> str:
     result = await db.scalar(
         select(Quotation.quote_number)
-        .order_by(desc(Quotation.created_at))
+        .order_by(desc(Quotation.quote_number))
         .limit(1)
     )
 
@@ -89,15 +90,18 @@ async def get_quotation(
 
 async def list_quotations(
     db: AsyncSession,
-    user_id: str,
+    user: User | str,
     status_value: QuoteStatus | None = None,
     customer_id: str | None = None,
 ) -> list[Quotation]:
-    query = (
-        select(Quotation)
-        .where(Quotation.created_by_user_id == user_id)
-        .order_by(desc(Quotation.created_at))
-    )
+    query = select(Quotation).order_by(desc(Quotation.created_at))
+
+    role = getattr(user, "role", None)
+    user_id = getattr(user, "id", user)
+
+    # Sales Reps only see quotations they created; Managers, Finance, and Admins supervise all deals
+    if role == UserRole.SALES_REP:
+        query = query.where(Quotation.created_by_user_id == user_id)
 
     if status_value:
         query = query.where(Quotation.status == status_value)

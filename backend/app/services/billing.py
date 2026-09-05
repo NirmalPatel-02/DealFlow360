@@ -358,11 +358,14 @@ async def create_order_from_quote(
     if not quote:
         raise HTTPException(404, "Quotation not found")
 
-    if quote.status != QuoteStatus.CONFIRMED:
+    if quote.status not in {QuoteStatus.CONFIRMED, QuoteStatus.APPROVED}:
         raise HTTPException(
             409,
-            "Only confirmed quotations can be converted into orders",
+            "Only approved or confirmed quotations can be converted into orders",
         )
+
+    if quote.status == QuoteStatus.APPROVED:
+        quote.status = QuoteStatus.CONFIRMED
 
     if not quote.lines:
         raise HTTPException(
@@ -391,16 +394,15 @@ async def create_order_from_quote(
         confirmed_at=utcnow(),
     )
 
-    db.add(order)
-    await db.flush()
-
     subtotal = Decimal("0.00")
     discount = Decimal("0.00")
     tax = Decimal("0.00")
 
     for line in quote.lines:
+        is_recurring = str(getattr(line, "line_type", "")).upper() in {"RECURRING", "QUOTELINETYPE.RECURRING"}
+        b_type = "RECURRING" if is_recurring else "ONE_TIME"
+
         order_item = OrderItem(
-            order_id=order.id,
             product_id=line.product_id,
             product_name_snapshot=line.description_snapshot,
             quantity=line.quantity,
@@ -412,7 +414,10 @@ async def create_order_from_quote(
                 - (line.line_subtotal - line.discount_amount)
             ),
             total_amount=line.line_total,
-            billing_type="ONE_TIME",
+            billing_type=b_type,
+            recurring_unit="month" if is_recurring else None,
+            recurring_interval=1 if is_recurring else None,
+            billing_start_date=date.today() if is_recurring else None,
         )
 
         order.items.append(order_item)
@@ -428,6 +433,9 @@ async def create_order_from_quote(
     order.discount_amount = money(discount)
     order.tax_amount = money(tax)
     order.total_amount = money(subtotal - discount + tax)
+
+    db.add(order)
+    await db.flush()
 
     await db.flush()
 

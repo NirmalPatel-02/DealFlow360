@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.dependencies import require_internal_user, require_manager
+from app.api.dependencies import require_approver, require_internal_user, require_manager
 from app.db.session import get_db
 from app.models.enums import ApprovalLevel, ApprovalStatus, UserRole
 from app.models.quote_approval import QuoteApproval
@@ -148,7 +148,7 @@ async def act_on_quote(
     quote_id: str,
     data: ApprovalActionRequest,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(require_manager),
+    user: User = Depends(require_approver),
 ):
     quote = await db.get(Quotation, quote_id)
 

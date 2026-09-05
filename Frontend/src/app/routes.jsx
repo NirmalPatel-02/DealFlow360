@@ -18,6 +18,10 @@ import AdminRoute from '../guards/AdminRoute';
 import AdminLoginPage from '../features/auth/pages/AdminLoginPage';
 import AdminLayout from '../layouts/AdminLayout';
 import AdminDashboardPage from '../features/admin/pages/AdminDashboardPage';
+import FulfillmentPage from '../features/fulfillment/pages/FulfillmentPage';
+import InvoiceListPage from '../features/billing/pages/InvoiceListPage';
+import InvoiceDetailsPage from '../features/billing/pages/InvoiceDetailsPage';
+import PaymentPage from '../features/billing/pages/PaymentPage';
 
 function Root() {
   return (
@@ -66,6 +70,11 @@ export const router = createBrowserRouter([
                 element: <DashboardLayout />,
                 children: [
                   { path: '/dashboard', element: <DashboardPage /> },
+                  { path: '/fulfillment', element: <FulfillmentPage /> },
+                  { path: '/billing', element: <InvoiceListPage /> },
+                  { path: '/invoices', element: <InvoiceListPage /> },
+                  { path: '/invoices/:invoiceId', element: <InvoiceDetailsPage /> },
+                  { path: '/billing/payments', element: <PaymentPage /> },
                   { path: '/quotations/new', element: <QuotationFormPage /> },
                   { path: '/quotations/:quoteId', element: <QuotationDetailPage /> },
                   { path: '/quotations/:quoteId/edit', element: <QuotationFormPage /> },

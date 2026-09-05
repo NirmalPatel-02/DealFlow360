@@ -62,9 +62,35 @@ export function updateCustomer(customerId, payload) {
   });
 }
 
+/**
+ * List contacts for a customer
+ * GET /api/customers/{customer_id}/contacts
+ */
+export function listContacts(customerId) {
+  return apiRequest(`${CUSTOMERS_BASE}/${customerId}/contacts`, {
+    method: 'GET',
+    auth: true,
+  });
+}
+
+/**
+ * Create a new contact for a customer
+ * POST /api/customers/{customer_id}/contacts
+ */
+export function createContact(customerId, payload) {
+  return apiRequest(`${CUSTOMERS_BASE}/${customerId}/contacts`, {
+    method: 'POST',
+    body: payload,
+    auth: true,
+  });
+}
+
 export default {
   listCustomers,
   getCustomer,
   createCustomer,
   updateCustomer,
+  listContacts,
+  createContact,
 };
+

@@ -1,3 +1,91 @@
-export default function PaymentStatus() {
-  return <div>PaymentStatus</div>;
+import React from 'react';
+
+export default function PaymentStatus({
+  status,
+  amountPaid = 0,
+  totalAmount = 0,
+  currency = 'INR',
+  paymentMethod,
+  paymentReference,
+  paidAt,
+}) {
+  const numPaid = parseFloat(amountPaid) || 0;
+  const numTotal = parseFloat(totalAmount) || 0;
+  const pct = numTotal > 0 ? Math.min(100, Math.round((numPaid / numTotal) * 100)) : 0;
+
+  const getStatusBadgeClass = (st) => {
+    switch ((st || '').toUpperCase()) {
+      case 'PAID':
+      case 'SUCCESS':
+        return 'badge-paid';
+      case 'PARTIALLY_PAID':
+        return 'badge-partially-paid';
+      case 'ISSUED':
+      case 'PENDING':
+        return 'badge-issued';
+      case 'OVERDUE':
+        return 'badge-overdue';
+      case 'CANCELLED':
+      case 'VOID':
+      case 'FAILED':
+        return 'badge-cancelled';
+      case 'REFUNDED':
+      case 'PARTIALLY_REFUNDED':
+        return 'badge-refunded';
+      default:
+        return 'badge-draft';
+    }
+  };
+
+  const formatCurrency = (val) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: currency || 'INR',
+      maximumFractionDigits: 2,
+    }).format(val || 0);
+  };
+
+  return (
+    <div className="payment-status-container">
+      <div className="payment-status-header">
+        <span className={`billing-status-pill ${getStatusBadgeClass(status)}`}>
+          {status ? status.replace('_', ' ') : 'DRAFT'}
+        </span>
+        {numTotal > 0 && (
+          <span className="payment-progress-label">
+            {pct}% Paid ({formatCurrency(numPaid)} of {formatCurrency(numTotal)})
+          </span>
+        )}
+      </div>
+
+      {numTotal > 0 && (
+        <div className="payment-progress-bar-track">
+          <div
+            className={`payment-progress-bar-fill ${pct === 100 ? 'complete' : pct > 0 ? 'partial' : 'zero'}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      )}
+
+      {(paymentMethod || paymentReference || paidAt) && (
+        <div className="payment-meta-row">
+          {paymentMethod && (
+            <span className="payment-method-chip" title="Payment Method">
+              💳 {paymentMethod.replace('_', ' ')}
+            </span>
+          )}
+          {paymentReference && (
+            <span className="payment-ref-chip" title="Transaction Reference">
+              Ref: {paymentReference}
+            </span>
+          )}
+          {paidAt && (
+            <span className="payment-date-chip" title="Recorded Date">
+              📅 {new Date(paidAt).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
