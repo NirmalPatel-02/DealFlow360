@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta, timezone
-
+from datetime import timedelta
+from app.utils.time import utcnow
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,7 +14,7 @@ async def can_request_otp(
     purpose: str,
     ip_address: str | None,
 ) -> tuple[bool, int]:
-    now = datetime.now(timezone.utc)
+    now = utcnow()
 
     latest_result = await db.execute(
         select(OTPCode.created_at)
@@ -81,7 +81,7 @@ async def create_otp(
     user_id: str | None,
     ip_address: str | None,
 ) -> str:
-    now = datetime.now(timezone.utc)
+    now = utcnow()
 
     await db.execute(
         delete(OTPCode).where(
@@ -119,7 +119,7 @@ async def verify_otp_code(
     purpose: str,
     code: str,
 ) -> OTPCode | None:
-    now = datetime.now(timezone.utc)
+    now = utcnow()
 
     result = await db.execute(
         select(OTPCode)

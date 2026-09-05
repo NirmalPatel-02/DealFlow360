@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
-
+from app.utils.time import utcnow
 import jwt
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -212,7 +212,7 @@ async def authenticate_user(
     if not user:
         return None, "invalid"
 
-    now = datetime.now(timezone.utc)
+    now = utcnow()
 
     if user.locked_until and user.locked_until > now:
         return None, "invalid"
@@ -267,8 +267,8 @@ async def create_session(
         user_id=user.id,
         token_hash=hash_refresh_token(refresh_token),
         family_id=str(uuid4()),
-        expires_at=datetime.now(timezone.utc)
-        + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+        expires_at=utcnow()
+        + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),        
         ip_address=ip_address,
         user_agent=user_agent,
     )
@@ -301,7 +301,7 @@ async def rotate_refresh_token(
 
     session = result.scalar_one_or_none()
 
-    now = datetime.now(timezone.utc)
+    now = utcnow()
 
     if not session:
         return None
@@ -378,7 +378,7 @@ async def revoke_refresh_token(
     session = result.scalar_one_or_none()
 
     if session:
-        session.revoked_at = datetime.now(timezone.utc)
+        session.revoked_at = utcnow()
         await db.commit()
 
 
@@ -464,7 +464,7 @@ async def reset_password(
             RefreshSession.user_id == user.id,
             RefreshSession.revoked_at.is_(None),
         )
-        .values(revoked_at=datetime.now(timezone.utc))
+        .values(revoked_at=utcnow())
     )
 
     await db.commit()

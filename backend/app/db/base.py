@@ -1,22 +1,34 @@
-from collections.abc import AsyncGenerator
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from app.core.config import settings
+from datetime import datetime
+from uuid import uuid4
+
+from sqlalchemy import DateTime, String
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+from app.utils.time import utcnow
 
 
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.ENVIRONMENT == "development",
-    pool_pre_ping=True,
-    pool_recycle=3600,
-)
-
-AsyncSessionLocal = async_sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-)
+class Base(DeclarativeBase):
+    pass
 
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionLocal() as session:
-        yield session
+class UUIDPrimaryKeyMixin:
+    id: Mapped[str] = mapped_column(
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid4()),
+    )
+
+
+class TimestampMixin:
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(),
+        default=utcnow,
+        nullable=False,
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(),
+        default=utcnow,
+        onupdate=utcnow,
+        nullable=False,
+    )

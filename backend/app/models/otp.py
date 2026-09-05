@@ -37,7 +37,7 @@ class OTPCode(Base, UUIDPrimaryKeyMixin):
     )
 
     expires_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
     )
 
@@ -54,7 +54,7 @@ class OTPCode(Base, UUIDPrimaryKeyMixin):
     )
 
     consumed_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=True,
     )
 
@@ -64,11 +64,21 @@ class OTPCode(Base, UUIDPrimaryKeyMixin):
     )
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
     )
 
     __table_args__ = (
-        Index("ix_otp_email_purpose_created", "email", "purpose", "created_at"),
-        Index("ix_otp_ip_purpose_created", "requested_ip", "purpose", "created_at"),
+        Index(
+            "ix_otp_email_purpose_created",
+            "email",
+            "purpose",
+            "created_at",
+        ),
+        Index(
+            "ix_otp_ip_purpose_created",
+            "requested_ip",
+            "purpose",
+            "created_at",
+        ),
     )

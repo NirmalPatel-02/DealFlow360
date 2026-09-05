@@ -59,11 +59,11 @@ class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     )
 
     locked_until: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=True,
     )
 
     last_login_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True),
+        DateTime(),
         nullable=True,
     )
