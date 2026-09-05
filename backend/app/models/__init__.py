@@ -27,6 +27,9 @@ from app.models.quotation import Quotation
 from app.models.quote_line import QuoteLine
 from app.models.quote_approval import QuoteApproval
 from app.models.audit_log import AuditLog
+from app.models.product_recommendation import ProductRecommendationRule
+from app.models.promotion import Promotion
+from app.models.recommendation_event import RecommendationEvent
 
 
 __all__ = [

@@ -12,6 +12,8 @@ from app.api.catalog import router as catalog_router
 from app.api.discount_governance import router as discount_governance_router
 from app.api.quotations import router as quotations_router
 from app.api.approvals import router as approvals_router
+from app.api.recommendations import router as recommendations_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,6 +46,7 @@ app.include_router(billing_router, prefix="/api")
 app.include_router(discount_governance_router)
 app.include_router(quotations_router)
 app.include_router(approvals_router)
+app.include_router(recommendations_router)
 
 @app.get("/health")
 async def health():
