@@ -52,6 +52,10 @@ class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         default=False,
     )
 
+    @property
+    def is_verified(self) -> bool:
+        return self.is_email_verified
+
     failed_login_attempts: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
