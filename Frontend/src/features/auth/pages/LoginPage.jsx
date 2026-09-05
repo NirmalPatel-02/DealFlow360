@@ -1,0 +1,23 @@
+import { useLocation, Link } from 'react-router-dom';
+import SketchHighlight from '../../../components/ui/SketchHighlight.jsx';
+import LoginForm from '../components/LoginForm.jsx';
+
+export default function LoginPage() {
+  const location = useLocation();
+  const notice = location.state?.notice;
+
+  return (
+    <section className="auth-card">
+      <h1 className="page-title">Welcome back</h1>
+      <p className="subheading">Sign in to your DealFlow360 workspace.</p>
+      <p className="body-copy">
+        Only <SketchHighlight>Sales Representatives</SketchHighlight> can log in here.
+      </p>
+      {notice ? <p className="form-banner form-banner-muted">{notice}</p> : null}
+      <LoginForm />
+      <p className="auth-footer">
+        Need an account? <Link to="/register">Register</Link>
+      </p>
+    </section>
+  );
+}
