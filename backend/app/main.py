@@ -14,7 +14,7 @@ from app.api.quotations import router as quotations_router
 from app.api.approvals import router as approvals_router
 from app.api.recommendations import router as recommendations_router
 from app.api.fulfillment import router as fulfillment_router
-
+from app.api.portal import router as portal_router
 
 
 @asynccontextmanager
@@ -50,6 +50,8 @@ app.include_router(quotations_router)
 app.include_router(approvals_router)
 app.include_router(recommendations_router)
 app.include_router(fulfillment_router)
+
+app.include_router(portal_router)
 
 @app.get("/health")
 async def health():

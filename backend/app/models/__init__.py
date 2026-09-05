@@ -36,6 +36,8 @@ from app.models.replenishment_rule import ReplenishmentRule
 from app.models.fulfillment_plan import FulfillmentPlan
 from app.models.fulfillment_allocation import FulfillmentAllocation
 from app.models.backorder import Backorder
+from app.models.portal_session import PortalSession
+from app.models.negotiation_request import NegotiationRequest
 
 __all__ = [
     "User",

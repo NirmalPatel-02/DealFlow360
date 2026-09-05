@@ -64,3 +64,9 @@ class BackorderStatus(str, Enum):
     ALLOCATED = "allocated"
     FULFILLED = "fulfilled"
     CANCELLED = "cancelled"
+
+class NegotiationStatus(str, Enum):
+    OPEN = "open"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+    WITHDRAWN = "withdrawn" 
