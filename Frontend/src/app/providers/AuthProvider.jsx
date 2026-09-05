@@ -1,10 +1,9 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { SALES_REP_ROLE } from '../../config/constants';
 import { getErrorCode, getErrorMessage } from '../../services/api/apiError';
-import { AUTH_ERROR_CODES } from '../../types/auth';
 import { getAccessToken } from '../../services/api/apiClient';
 import {
   forgotPassword as forgotPasswordRequest,
+  changePassword as changePasswordRequest,
   getCurrentUser,
   login as loginRequest,
   logout as logoutRequest,
@@ -17,14 +16,6 @@ import {
 } from '../../features/auth/auth.api';
 
 export const AuthContext = createContext(null);
-
-function assertSalesRep(user) {
-  if (user && user.role !== SALES_REP_ROLE) {
-    const error = new Error('Only Sales Representatives can sign in here.');
-    error.code = AUTH_ERROR_CODES.ROLE_NOT_ALLOWED;
-    throw error;
-  }
-}
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -39,7 +30,6 @@ export default function AuthProvider({ children }) {
     try {
       await refreshAccessToken();
       const currentUser = await getCurrentUser();
-      assertSalesRep(currentUser);
       setUser(currentUser);
       setStatus('authenticated');
     } catch {
@@ -62,18 +52,6 @@ export default function AuthProvider({ children }) {
   const login = useCallback(async (credentials) => {
     const response = await loginRequest(credentials);
     setAccessToken(response.access_token);
-
-    try {
-      assertSalesRep(response.user);
-    } catch (error) {
-      try {
-        await logoutRequest();
-      } catch {
-        // Ignore network failures during cleanup.
-      }
-      clearSession();
-      throw error;
-    }
 
     setUser(response.user);
     setStatus('authenticated');
@@ -100,6 +78,10 @@ export default function AuthProvider({ children }) {
     return resetPasswordRequest(payload);
   }, []);
 
+  const changePassword = useCallback(async (payload) => {
+    return changePasswordRequest(payload);
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await logoutRequest();
@@ -123,6 +105,7 @@ export default function AuthProvider({ children }) {
       resendVerification,
       requestPasswordReset,
       resetPassword,
+      changePassword,
       logout,
       getErrorMessage,
       getErrorCode,
@@ -136,6 +119,7 @@ export default function AuthProvider({ children }) {
       resendVerification,
       requestPasswordReset,
       resetPassword,
+      changePassword,
       logout,
     ],
   );

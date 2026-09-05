@@ -1,0 +1,53 @@
+@import './DashboardStyles.css';
+
+/* Sales Manager Dashboard specific styles */
+
+.sales-manager-dashboard .stats-grid {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.sales-manager-dashboard .stat-card.highlight {
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.sales-manager-dashboard .stat-card.alert {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+/* Approval table styling */
+.approvals-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.approvals-table tbody tr:hover {
+  background-color: #f3f4f6;
+}
+
+/* Risk score column highlighting */
+.approvals-table .risk-badge.risk-high {
+  font-weight: 700;
+}
+
+/* Approval status colors */
+.approvals-table .status-badge {
+  font-size: 0.7rem;
+}
+
+/* Manager-specific styling for pending approvals */
+.sales-manager-dashboard .row-highlight-warning {
+  background-color: #fef3c7 !important;
+  border-left: 4px solid #f59e0b;
+}
+
+/* Action buttons for manager */
+.sales-manager-dashboard .table-actions {
+  gap: 0.25rem;
+}
+
+.sales-manager-dashboard .btn-success {
+  padding: 0.375rem;
+  min-width: 32px;
+  text-align: center;
+}

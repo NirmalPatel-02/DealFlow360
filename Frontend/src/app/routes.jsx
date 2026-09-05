@@ -11,6 +11,9 @@ import SignupPage from '../features/auth/pages/SignupPage';
 import VerifyEmailPage from '../features/auth/pages/VerifyEmailPage';
 import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage';
 import DashboardPage from '../features/dashboard/pages/DashboardPage';
+import QuotationFormPage from '../features/quotations/pages/QuotationFormPage';
+import QuotationDetailPage from '../features/quotations/pages/QuotationDetailPage';
+import ProfilePage from '../features/profile/pages/ProfilePage';
 
 function Root() {
   return (
@@ -47,7 +50,13 @@ export const router = createBrowserRouter([
             children: [
               {
                 element: <DashboardLayout />,
-                children: [{ path: '/dashboard', element: <DashboardPage /> }],
+                children: [
+                  { path: '/dashboard', element: <DashboardPage /> },
+                  { path: '/quotations/new', element: <QuotationFormPage /> },
+                  { path: '/quotations/:quoteId', element: <QuotationDetailPage /> },
+                  { path: '/quotations/:quoteId/edit', element: <QuotationFormPage /> },
+                  { path: '/profile', element: <ProfilePage /> },
+                ],
               },
             ],
           },

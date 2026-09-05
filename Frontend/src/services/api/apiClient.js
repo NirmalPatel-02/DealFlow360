@@ -24,7 +24,8 @@ async function parseBody(response) {
 }
 
 async function rawRequest(path, { method = 'GET', body, auth = false, headers = {} } = {}) {
-  const response = await fetch(`${apiConfig.baseUrl}${path}`, {
+  const requestUrl = path.startsWith('/api/') ? path : `${apiConfig.baseUrl}${path}`;
+  const response = await fetch(requestUrl, {
     method,
     credentials: 'include',
     headers: {

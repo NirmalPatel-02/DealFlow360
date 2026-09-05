@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { SALES_REP_ROLE } from '../config/constants';
 import { useAuth } from '../hooks/useAuth';
 
-export default function RoleRoute({ allow = [SALES_REP_ROLE] }) {
+const DASHBOARD_ROLES = ['sales_rep', 'sales_manager', 'finance_ops', 'finance', 'operations', 'customer', 'admin'];
+
+export default function RoleRoute({ allow = DASHBOARD_ROLES }) {
   const { user, logout } = useAuth();
   const allowed = Boolean(user && allow.includes(user.role));
 

@@ -1,0 +1,78 @@
+@import './DashboardStyles.css';
+
+/* Finance & Operations Dashboard specific styles */
+
+.finance-dashboard .stats-grid {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.finance-dashboard .stat-card.highlight {
+  background: #dbeafe;
+  border-color: #411111;
+}
+
+/* Finance table styling */
+.finance-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.finance-table tbody tr:hover {
+  background-color: #f3f4f6;
+}
+
+/* Amount highlighting */
+.finance-table .text-right strong {
+  color: #1f2937;
+  font-weight: 700;
+}
+
+/* Margin analysis columns */
+.finance-table .margin-badge {
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Info box styling for finance processes */
+.finance-dashboard .info-box {
+  background: #eff6ff;
+  border-left: 4px solid #411111;
+}
+
+.finance-dashboard .info-box h4 {
+  color: #1e40af;
+  margin-top: 0;
+}
+
+/* Action button styling for fulfillment workflow */
+.finance-dashboard .btn-primary {
+  background: #411111;
+}
+
+.finance-dashboard .btn-primary:hover {
+  background: #2563eb;
+}
+
+.finance-dashboard .btn-success {
+  background: #22c55e;
+}
+
+.finance-dashboard .btn-success:hover {
+  background: #16a34a;
+}
+
+/* Status indicators for approval levels */
+.finance-dashboard .status-pending {
+  background: #fef08a;
+  color: #78350f;
+}
+
+/* Cost/Revenue analysis styling */
+.finance-table .cost-effective {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.finance-table .cost-warning {
+  color: #f59e0b;
+  font-weight: 600;
+}

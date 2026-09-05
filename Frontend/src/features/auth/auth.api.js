@@ -46,6 +46,18 @@ export function getCurrentUser() {
   return apiRequest('/auth/me', { method: 'GET', auth: true });
 }
 
+export function changePassword(payload) {
+  return apiRequest('/auth/change-password', {
+    method: 'POST',
+    body: {
+      current_password: payload.current_password,
+      new_password: payload.new_password,
+      confirm_password: payload.confirm_password,
+    },
+    auth: true,
+  });
+}
+
 export function forgotPassword(email) {
   return apiRequest('/auth/forgot-password', {
     method: 'POST',

@@ -1,0 +1,219 @@
+.landing-page {
+  position: relative;
+  isolation: isolate;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+.landing {
+  position: relative;
+  z-index: 2;
+}
+
+/* ================================
+   CHAKRA BACKGROUND
+================================ */
+
+.chakra-background {
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  filter: blur(0.05px);
+}
+
+.chakra-orbit {
+  position: absolute;
+  width: 58vw;
+  height: 58vw;
+  max-width: 900px;
+  max-height: 900px;
+  min-width: 520px;
+  min-height: 520px;
+  will-change: transform;
+}
+
+.chakra-orbit-one {
+  left: 10%;
+  top: 5%;
+  animation: orbitOne 42s cubic-bezier(.45, .05, .55, .95) infinite alternate;
+}
+
+.chakra-orbit-two {
+  right: 5%;
+  bottom: 0;
+  animation: orbitTwo 48s cubic-bezier(.45, .05, .55, .95) infinite alternate;
+}
+
+.chakra {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1.5px solid rgba(226, 176, 34, 0.3);
+
+  box-shadow:
+    0 0 22px rgba(234, 190, 63, 0.12),
+    inset 0 0 22px rgba(234, 190, 63, 0.06);
+
+  position: relative;
+  will-change: transform;
+}
+
+.chakra::before,
+.chakra::after {
+  content: "";
+  position: absolute;
+  border: 1px solid rgba(226, 176, 34, 0.22);
+  border-radius: 50%;
+  inset: 9%;
+}
+
+.chakra::after {
+  inset: 18%;
+  border-style: dashed;
+  animation: chakraSpin 30s linear infinite;
+}
+
+.chakra-one {
+  animation: chakraSpin 56s linear infinite;
+}
+
+.chakra-two {
+  animation: chakraSpinReverse 64s linear infinite;
+}
+
+/* ================================
+   CHAKRA MOVEMENT
+================================ */
+
+@keyframes orbitOne {
+  0% {
+    transform: translate3d(-6%, 4%, 0) rotate(0);
+  }
+
+  35% {
+    transform: translate3d(20%, 12%, 0) rotate(12deg);
+  }
+
+  65% {
+    transform: translate3d(45%, 30%, 0) rotate(-8deg);
+  }
+
+  100% {
+    transform: translate3d(12%, 42%, 0) rotate(4deg);
+  }
+}
+
+@keyframes orbitTwo {
+  0% {
+    transform: translate3d(8%, -4%, 0) rotate(0);
+  }
+
+  40% {
+    transform: translate3d(-35%, -20%, 0) rotate(-14deg);
+  }
+
+  70% {
+    transform: translate3d(-52%, -40%, 0) rotate(7deg);
+  }
+
+  100% {
+    transform: translate3d(-18%, -52%, 0) rotate(-5deg);
+  }
+}
+
+@keyframes chakraSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes chakraSpinReverse {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* ================================
+   DEALFLOW360 TYPEWRITER
+================================ */
+
+.sketch-highlight {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+}
+
+.sketch-highlight::after {
+  content: "";
+  position: absolute;
+
+  left: -4%;
+  right: -4%;
+  bottom: -0.18em;
+
+  height: 0.6em;
+
+  border: 3px solid #e6b526;
+  border-top: 0;
+
+  border-radius: 50%;
+  transform: rotate(-2deg);
+
+  z-index: -1;
+}
+
+.dealflow-typewriter {
+  white-space: nowrap;
+  overflow: hidden;
+  vertical-align: bottom;
+
+  width: 0;
+
+  animation:
+    typeDealFlow 1.55s steps(11, end) 0.15s forwards;
+}
+
+/* Hand-drawn yellow circle */
+.dealflow-typewriter::after {
+  clip-path: inset(0 100% 0 0);
+
+  animation:
+    drawCircle 1.05s cubic-bezier(.4, 0, .2, 1)
+    1.55s forwards;
+}
+
+@keyframes typeDealFlow {
+  to {
+    width: 11ch;
+  }
+}
+
+@keyframes drawCircle {
+  to {
+    clip-path: inset(0 -10% 0 -10%);
+  }
+}
+
+/* ================================
+   REDUCED MOTION
+================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .chakra-orbit,
+  .chakra,
+  .chakra::after,
+  .dealflow-typewriter,
+  .dealflow-typewriter::after {
+    animation: none !important;
+  }
+
+  .dealflow-typewriter {
+    width: auto;
+  }
+
+  .dealflow-typewriter::after {
+    clip-path: none;
+  }
+}

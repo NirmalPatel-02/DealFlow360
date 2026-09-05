@@ -1,0 +1,34 @@
+@import './DashboardStyles.css';
+
+/* Sales Rep Dashboard specific styles */
+
+.sales-rep-dashboard .dashboard-header {
+  margin-bottom: 2rem;
+}
+
+.sales-rep-dashboard .stats-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.sales-rep-dashboard .quotations-table {
+  width: 100%;
+}
+
+/* Quotation status specific styling */
+.quotations-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.quotations-table tbody tr:hover {
+  background: #f3f4f6;
+}
+
+/* Quick filter colors in stats */
+.sales-rep-dashboard .stat-card {
+  cursor: pointer;
+}
+
+.sales-rep-dashboard .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
