@@ -31,7 +31,10 @@ from app.services.deal_engine import (
 )
 from app.services.quotation import recalculate_quotation
 from app.utils.time import utcnow
-
+from app.services.billing import (
+    create_order_from_quote,
+    create_one_time_invoice_if_needed,
+)
 
 PORTAL_SESSION_HOURS = 72
 
@@ -668,6 +671,18 @@ async def confirm_portal_quote(
 
     quote.status = QuoteStatus.CONFIRMED
 
+    order = await create_order_from_quote(
+        db,
+        quote.id,
+        performed_by=quote.created_by_user_id,
+    )
+
+    invoice = await create_one_time_invoice_if_needed(
+        db,
+        order.id,
+        performed_by=quote.created_by_user_id,
+    )
+
     await _audit(
         db,
         "quotation",
@@ -675,9 +690,12 @@ async def confirm_portal_quote(
         "CUSTOMER_CONFIRMED",
         metadata={
             "contact_id": session.customer_contact_id,
+            "order_id": order.id,
+            "invoice_id": invoice.id if invoice else None,
         },
     )
 
     await db.commit()
 
     return quote
+

@@ -2,7 +2,9 @@ from calendar import monthrange
 from datetime import date, datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from uuid import uuid4
-
+from app.models.quotation import Quotation
+from app.models.quote_line import QuoteLine
+from app.models.enums import QuoteStatus
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -122,6 +124,100 @@ async def create_invoice(db: AsyncSession, order_id: str, performed_by: str) -> 
     await db.refresh(invoice)
     return invoice
 
+async def create_one_time_invoice_if_needed(
+    db: AsyncSession,
+    order_id: str,
+    performed_by: str,
+) -> Invoice | None:
+    order = await get_order(db, order_id)
+
+    existing = await db.scalar(
+        select(Invoice)
+        .where(
+            Invoice.order_id == order.id,
+            Invoice.invoice_type == "ONE_TIME",
+            Invoice.status != "CANCELLED",
+        )
+    )
+
+    if existing:
+        return existing
+
+    items = [
+        item
+        for item in order.items
+        if item.billing_type == "ONE_TIME"
+    ]
+
+    if not items:
+        return None
+
+    subtotal = money(
+        sum(
+            (item.quantity * item.unit_price for item in items),
+            Decimal("0.00"),
+        )
+    )
+
+    discount = money(
+        sum(
+            (item.discount_amount for item in items),
+            Decimal("0.00"),
+        )
+    )
+
+    tax = money(
+        sum(
+            (item.tax_amount for item in items),
+            Decimal("0.00"),
+        )
+    )
+
+    total = money(subtotal - discount + tax)
+
+    invoice = Invoice(
+        order_id=order.id,
+        customer_id=order.customer_id,
+        invoice_number=f"INV-{uuid4().hex[:10].upper()}",
+        invoice_type="ONE_TIME",
+        status="ISSUED",
+        currency=order.currency,
+        subtotal=subtotal,
+        discount_amount=discount,
+        tax_amount=tax,
+        total_amount=total,
+        amount_paid=Decimal("0.00"),
+        amount_due=total,
+        due_date=date.today() + timedelta(days=30),
+        issued_at=utcnow(),
+    )
+
+    for item in items:
+        invoice.items.append(
+            InvoiceItem(
+                order_item_id=item.id,
+                description=item.product_name_snapshot,
+                quantity=item.quantity,
+                unit_price=item.unit_price,
+                discount_amount=item.discount_amount,
+                tax_amount=item.tax_amount,
+                total_amount=item.total_amount,
+            )
+        )
+
+    db.add(invoice)
+    await db.flush()
+
+    audit(
+        db,
+        order_id=order.id,
+        invoice_id=invoice.id,
+        action="ONE_TIME_INVOICE_CREATED",
+        performed_by=performed_by,
+        new=invoice.invoice_number,
+    )
+
+    return invoice
 
 async def record_payment(db: AsyncSession, invoice_id: str, payload, performed_by: str) -> Payment:
     result = await db.execute(select(Invoice).where(Invoice.id == invoice_id).with_for_update())
@@ -245,3 +341,102 @@ async def generate_recurring_invoice(db: AsyncSession, subscription_id: str, per
     await db.commit()
     await db.refresh(invoice)
     return invoice
+
+async def create_order_from_quote(
+    db: AsyncSession,
+    quote_id: str,
+    performed_by: str,
+) -> Order:
+    result = await db.execute(
+        select(Quotation)
+        .options(selectinload(Quotation.lines))
+        .where(Quotation.id == quote_id)
+        .with_for_update()
+    )
+    quote = result.scalar_one_or_none()
+
+    if not quote:
+        raise HTTPException(404, "Quotation not found")
+
+    if quote.status != QuoteStatus.CONFIRMED:
+        raise HTTPException(
+            409,
+            "Only confirmed quotations can be converted into orders",
+        )
+
+    if not quote.lines:
+        raise HTTPException(
+            400,
+            "Quotation must contain at least one line",
+        )
+
+    existing_result = await db.execute(
+        select(Order).where(Order.quotation_id == quote.id)
+    )
+    existing_order = existing_result.scalar_one_or_none()
+
+    if existing_order:
+        return existing_order
+
+    order = Order(
+        customer_id=quote.customer_id,
+        quotation_id=quote.id,
+        order_number=f"ORD-{uuid4().hex[:10].upper()}",
+        status="CONFIRMED",
+        currency=quote.currency.upper(),
+        subtotal=money(quote.subtotal),
+        discount_amount=money(quote.discount_total),
+        tax_amount=money(quote.tax_total),
+        total_amount=money(quote.grand_total),
+        confirmed_at=utcnow(),
+    )
+
+    db.add(order)
+    await db.flush()
+
+    subtotal = Decimal("0.00")
+    discount = Decimal("0.00")
+    tax = Decimal("0.00")
+
+    for line in quote.lines:
+        order_item = OrderItem(
+            order_id=order.id,
+            product_id=line.product_id,
+            product_name_snapshot=line.description_snapshot,
+            quantity=line.quantity,
+            unit_price=line.unit_price,
+            discount_percent=line.discount_percent,
+            discount_amount=line.discount_amount,
+            tax_amount=money(
+                line.line_total
+                - (line.line_subtotal - line.discount_amount)
+            ),
+            total_amount=line.line_total,
+            billing_type="ONE_TIME",
+        )
+
+        order.items.append(order_item)
+
+        subtotal += line.line_subtotal
+        discount += line.discount_amount
+        tax += money(
+            line.line_total
+            - (line.line_subtotal - line.discount_amount)
+        )
+
+    order.subtotal = money(subtotal)
+    order.discount_amount = money(discount)
+    order.tax_amount = money(tax)
+    order.total_amount = money(subtotal - discount + tax)
+
+    await db.flush()
+
+    audit(
+        db,
+        order_id=order.id,
+        action="ORDER_CREATED_FROM_QUOTE",
+        performed_by=performed_by,
+        new=f"quotation={quote.quote_number}",
+    )
+
+    return order

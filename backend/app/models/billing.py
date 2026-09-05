@@ -13,8 +13,12 @@ money = Numeric(14, 2)
 class Order(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __tablename__ = "orders"
 
-    customer_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
-    quotation_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    customer_id: Mapped[str] = mapped_column(
+        ForeignKey("customers.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
+    quotation_id: Mapped[str | None] = mapped_column(String(36), nullable=True, unique=True)
     order_number: Mapped[str] = mapped_column(String(40), unique=True, index=True)
     status: Mapped[str] = mapped_column(String(20), default="CONFIRMED", index=True)
     currency: Mapped[str] = mapped_column(String(3), default="INR")
@@ -24,11 +28,14 @@ class Order(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     total_amount: Mapped[Decimal] = mapped_column(money, default=0)
     confirmed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
-    items: Mapped[list["OrderItem"]] = relationship(back_populates="order", cascade="all, delete-orphan")
+    customer = relationship("Customer")
+    items: Mapped[list["OrderItem"]] = relationship(
+        back_populates="order",
+        cascade="all, delete-orphan",
+    )
     invoices: Mapped[list["Invoice"]] = relationship(back_populates="order")
     payments: Mapped[list["Payment"]] = relationship(back_populates="order")
     subscriptions: Mapped[list["Subscription"]] = relationship(back_populates="order")
-
 
 class OrderItem(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __tablename__ = "order_items"
@@ -70,7 +77,11 @@ class Subscription(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __tablename__ = "subscriptions"
 
     order_id: Mapped[str] = mapped_column(ForeignKey("orders.id"), index=True)
-    customer_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    customer_id: Mapped[str] = mapped_column(
+        ForeignKey("customers.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
     order_item_id: Mapped[str] = mapped_column(ForeignKey("order_items.id"), unique=True)
     subscription_plan_id: Mapped[str] = mapped_column(ForeignKey("subscription_plans.id"))
     status: Mapped[str] = mapped_column(Enum("ACTIVE", "PAUSED", "CANCELLED", "EXPIRED", name="subscription_status"), index=True)
@@ -90,7 +101,11 @@ class Invoice(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __tablename__ = "invoices"
 
     order_id: Mapped[str] = mapped_column(ForeignKey("orders.id"), index=True)
-    customer_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    customer_id: Mapped[str] = mapped_column(
+        ForeignKey("customers.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
     invoice_number: Mapped[str] = mapped_column(String(40), unique=True, index=True)
     invoice_type: Mapped[str] = mapped_column(Enum("ONE_TIME", "RECURRING", name="invoice_type"), index=True)
     status: Mapped[str] = mapped_column(Enum("DRAFT", "ISSUED", "PARTIALLY_PAID", "PAID", "OVERDUE", "VOID", "CANCELLED", name="invoice_status"), index=True)
@@ -104,7 +119,7 @@ class Invoice(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     due_date: Mapped[date] = mapped_column(Date)
     issued_at: Mapped[datetime] = mapped_column(DateTime)
     paid_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-
+    customer = relationship("Customer")
     order: Mapped[Order] = relationship(back_populates="invoices")
     items: Mapped[list["InvoiceItem"]] = relationship(back_populates="invoice", cascade="all, delete-orphan")
     payments: Mapped[list["Payment"]] = relationship(back_populates="invoice")
@@ -134,7 +149,11 @@ class Payment(Base, UUIDPrimaryKeyMixin, TimestampMixin):
 
     invoice_id: Mapped[str] = mapped_column(ForeignKey("invoices.id"), index=True)
     order_id: Mapped[str] = mapped_column(ForeignKey("orders.id"), index=True)
-    customer_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    customer_id: Mapped[str] = mapped_column(
+        ForeignKey("customers.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
     payment_reference: Mapped[str] = mapped_column(String(100), unique=True)
     amount: Mapped[Decimal] = mapped_column(money)
     refunded_amount: Mapped[Decimal] = mapped_column(money, default=0)
@@ -152,7 +171,11 @@ class CreditNote(Base, UUIDPrimaryKeyMixin, TimestampMixin):
 
     invoice_id: Mapped[str] = mapped_column(ForeignKey("invoices.id"), index=True)
     subscription_id: Mapped[str | None] = mapped_column(ForeignKey("subscriptions.id"), nullable=True)
-    customer_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    customer_id: Mapped[str] = mapped_column(
+        ForeignKey("customers.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
     credit_note_number: Mapped[str] = mapped_column(String(40), unique=True)
     reason: Mapped[str] = mapped_column(String(255))
     amount: Mapped[Decimal] = mapped_column(money)
