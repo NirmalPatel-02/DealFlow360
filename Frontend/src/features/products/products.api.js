@@ -18,6 +18,15 @@ export function listProducts(filters = {}) {
   if (filters.product_type) {
     params.append('product_type', filters.product_type);
   }
+  if (filters.is_active !== undefined) {
+    params.append('is_active', filters.is_active);
+  }
+  if (filters.skip !== undefined) {
+    params.append('skip', filters.skip);
+  }
+  if (filters.limit !== undefined) {
+    params.append('limit', filters.limit);
+  }
   
   const query = params.toString() ? `?${params.toString()}` : '';
   
@@ -59,6 +68,9 @@ export function listPriceLists(filters = {}) {
   if (filters.customer_tier) {
     params.append('customer_tier', filters.customer_tier);
   }
+  if (filters.currency) {
+    params.append('currency', filters.currency);
+  }
   
   const query = params.toString() ? `?${params.toString()}` : '';
   
@@ -68,9 +80,75 @@ export function listPriceLists(filters = {}) {
   });
 }
 
+/**
+ * Create a new product category
+ * POST /api/catalog/categories
+ */
+export function createCategory(data) {
+  return apiRequest(`${CATALOG_BASE}/categories`, {
+    method: 'POST',
+    body: data,
+    auth: true,
+  });
+}
+
+/**
+ * Update an existing category
+ * PATCH /api/catalog/categories/{categoryId}
+ */
+export function updateCategory(categoryId, data) {
+  return apiRequest(`${CATALOG_BASE}/categories/${categoryId}`, {
+    method: 'PATCH',
+    body: data,
+    auth: true,
+  });
+}
+
+/**
+ * Create a new product
+ * POST /api/catalog/products
+ */
+export function createProduct(data) {
+  return apiRequest(`${CATALOG_BASE}/products`, {
+    method: 'POST',
+    body: data,
+    auth: true,
+  });
+}
+
+/**
+ * Update an existing product
+ * PATCH /api/catalog/products/{productId}
+ */
+export function updateProduct(productId, data) {
+  return apiRequest(`${CATALOG_BASE}/products/${productId}`, {
+    method: 'PATCH',
+    body: data,
+    auth: true,
+  });
+}
+
+/**
+ * Create a price list
+ * POST /api/catalog/price-lists
+ */
+export function createPriceList(data) {
+  return apiRequest(`${CATALOG_BASE}/price-lists`, {
+    method: 'POST',
+    body: data,
+    auth: true,
+  });
+}
+
 export default {
   listProducts,
   getProduct,
+  createProduct,
+  updateProduct,
   listCategories,
+  createCategory,
+  updateCategory,
   listPriceLists,
+  createPriceList,
 };
+

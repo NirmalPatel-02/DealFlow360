@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Field from '../../../components/forms/Field.jsx';
-import { listCustomers } from '../../customers/customers.api';
-import { listProducts } from '../../products/products.api';
+import { createCustomer, listCustomers } from '../../customers/customers.api';
+import { listCategories, listProducts } from '../../products/products.api';
 import {
   useCreateQuotation,
   useQuotationDetail,
@@ -13,6 +13,8 @@ import { getErrorMessage } from '../../../services/api/apiError';
 import '../quotation-pages.css';
 
 const EMPTY_LINE = { product_id: '', quantity: '1', discount_percent: '0', line_type: 'one_time', notes: '' };
+const TEMP_CUSTOMERS = [{ id: 'temp-customer-1', name: 'Northstar Labs', code: 'NORTHSTAR', tier: 'gold', currency: 'USD' }];
+const TEMP_PRODUCTS = [{ id: 'temp-product-1', name: 'Edge Compute Node', code: 'EDGE-100', product_type: 'hardware', base_price: 4800, cost_price: 3200 }];
 
 export default function QuotationFormPage() {
   const { quoteId } = useParams();
@@ -23,6 +25,14 @@ export default function QuotationFormPage() {
   const { updateLine, loading: lineSaving, error: lineError } = useQuotationLines(quoteId);
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [productSearch, setProductSearch] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [productType, setProductType] = useState('');
+  const [showCustomerForm, setShowCustomerForm] = useState(false);
+  const [customerSaving, setCustomerSaving] = useState(false);
+  const [customerDraft, setCustomerDraft] = useState({ name: '', code: '', tier: 'bronze', currency: 'USD' });
   const [values, setValues] = useState({ customer_id: '', notes: '', valid_until: '' });
   const [lines, setLines] = useState([EMPTY_LINE]);
   const [loadingOptions, setLoadingOptions] = useState(true);
@@ -31,32 +41,54 @@ export default function QuotationFormPage() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([listCustomers({ is_active: true }), listProducts({ is_active: true })])
-      .then(([customerData, productData]) => {
+    Promise.all([listCustomers({ is_active: true }), listProducts({ is_active: true, limit: 100 }), listCategories()])
+      .then(([customerData, productData, categoryData]) => {
         if (!active) return;
-        setCustomers(customerData || []);
-        setProducts(productData || []);
+        setCustomers(customerData?.length ? customerData : TEMP_CUSTOMERS);
+        setProducts(productData?.length ? productData : TEMP_PRODUCTS);
+        setCategories(categoryData || []);
       })
-      .catch((requestError) => active && setError(getErrorMessage(requestError)))
+      .catch((requestError) => {
+        if (!active) return;
+        setCustomers(TEMP_CUSTOMERS);
+        setProducts(TEMP_PRODUCTS);
+        setError(`${getErrorMessage(requestError)} Showing temporary catalog data.`);
+      })
       .finally(() => active && setLoadingOptions(false));
     return () => { active = false; };
   }, []);
 
   useEffect(() => {
+    if (loadingOptions) return undefined;
+    let active = true;
+    const timer = setTimeout(() => {
+      listProducts({ search: productSearch, category_id: categoryId, product_type: productType, is_active: true, limit: 100 })
+        .then((data) => active && setProducts(data?.length ? data : TEMP_PRODUCTS))
+        .catch(() => active && setProducts(TEMP_PRODUCTS));
+    }, 250);
+    return () => { active = false; clearTimeout(timer); };
+  }, [categoryId, loadingOptions, productSearch, productType]);
+
+  useEffect(() => {
     if (!quotation) return;
-    setValues({
-      customer_id: quotation.customer_id || '',
-      notes: quotation.notes || '',
-      valid_until: quotation.valid_until ? quotation.valid_until.slice(0, 10) : '',
-    });
-    setLines(quotation.lines?.length ? quotation.lines.map((line) => ({
-      id: line.id,
-      product_id: line.product_id,
-      quantity: String(line.quantity),
-      discount_percent: String(line.discount_percent),
-      line_type: line.line_type || 'one_time',
-      notes: line.notes || '',
-    })) : [EMPTY_LINE]);
+    let active = true;
+    const hydration = setTimeout(() => {
+      if (!active) return;
+      setValues({
+        customer_id: quotation.customer_id || '',
+        notes: quotation.notes || '',
+        valid_until: quotation.valid_until ? quotation.valid_until.slice(0, 10) : '',
+      });
+      setLines(quotation.lines?.length ? quotation.lines.map((line) => ({
+        id: line.id,
+        product_id: line.product_id,
+        quantity: String(line.quantity),
+        discount_percent: String(line.discount_percent),
+        line_type: line.line_type || 'one_time',
+        notes: line.notes || '',
+      })) : [EMPTY_LINE]);
+    }, 0);
+    return () => { active = false; clearTimeout(hydration); };
   }, [quotation]);
 
   function updateValue(event) {
@@ -78,6 +110,24 @@ export default function QuotationFormPage() {
   function removeLine(index) {
     setLines((current) => current.length === 1 ? current : current.filter((_, lineIndex) => lineIndex !== index));
   }
+
+  async function handleCreateCustomer() {
+    setCustomerSaving(true);
+    setError('');
+    try {
+      const customer = await createCustomer(customerDraft);
+      setCustomers((current) => [customer, ...current]);
+      setValues((current) => ({ ...current, customer_id: customer.id }));
+      setShowCustomerForm(false);
+      setCustomerDraft({ name: '', code: '', tier: 'bronze', currency: 'USD' });
+    } catch (requestError) {
+      setError(`${getErrorMessage(requestError)} Temporary customer creation is unavailable until the API is ready.`);
+    } finally {
+      setCustomerSaving(false);
+    }
+  }
+
+  const visibleCustomers = customers.filter((customer) => !customerSearch || `${customer.name} ${customer.code}`.toLowerCase().includes(customerSearch.toLowerCase()));
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -151,10 +201,12 @@ export default function QuotationFormPage() {
           <div className="quotation-form-grid">
             <label className="field">
               <span className="field-label">Customer</span>
+              <input className="input" value={customerSearch} onChange={(event) => setCustomerSearch(event.target.value)} placeholder="Search customers" disabled={busy} />
               <select className="input" name="customer_id" value={values.customer_id} onChange={updateValue} disabled={editing || busy}>
                 <option value="">Select customer</option>
-                {customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name} ({customer.code})</option>)}
+                {visibleCustomers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name} · {customer.tier || 'tier pending'}</option>)}
               </select>
+              {!editing && <button type="button" className="btn btn-sm btn-outline" onClick={() => setShowCustomerForm((current) => !current)}>+ Create customer</button>}
             </label>
             <Field label="Valid until" name="valid_until" type="date" value={values.valid_until} onChange={updateValue} disabled={busy} />
           </div>
@@ -164,8 +216,11 @@ export default function QuotationFormPage() {
           </label>
         </div>
 
+        {showCustomerForm && <div className="quotation-form-section inline-customer-form"><div className="section-heading-row"><h2>Create customer</h2><button type="button" className="line-remove" onClick={() => setShowCustomerForm(false)} aria-label="Close customer form">×</button></div><div className="quotation-form-grid"><label className="field"><span className="field-label">Customer name</span><input className="input" value={customerDraft.name} onChange={(event) => setCustomerDraft((current) => ({ ...current, name: event.target.value }))} required /></label><label className="field"><span className="field-label">Customer code</span><input className="input" value={customerDraft.code} onChange={(event) => setCustomerDraft((current) => ({ ...current, code: event.target.value }))} required /></label><label className="field"><span className="field-label">Subscription tier</span><select className="input" value={customerDraft.tier} onChange={(event) => setCustomerDraft((current) => ({ ...current, tier: event.target.value }))}><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option></select></label><label className="field"><span className="field-label">Currency</span><input className="input" value={customerDraft.currency} onChange={(event) => setCustomerDraft((current) => ({ ...current, currency: event.target.value.toUpperCase() }))} maxLength="3" required /></label><button className="btn btn-primary" type="button" onClick={handleCreateCustomer} disabled={customerSaving}>{customerSaving ? 'Creating…' : 'Create and select'}</button></div></div>}
+
         <div className="quotation-form-section">
           <div className="section-heading-row"><h2>Product lines</h2><button type="button" className="btn btn-outline" onClick={addBlankLine}>+ Add line</button></div>
+          <div className="quotation-form-grid product-filters"><Field label="Search catalog" name="product_search" value={productSearch} onChange={(event) => setProductSearch(event.target.value)} /><label className="field"><span className="field-label">Catalog category</span><select className="input" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}><option value="">All categories</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><label className="field"><span className="field-label">Product type</span><select className="input" value={productType} onChange={(event) => setProductType(event.target.value)}><option value="">All types</option><option value="hardware">Hardware</option><option value="service">Service</option><option value="subscription">Subscription</option></select></label></div>
           {lines.map((line, index) => (
             <div className="quotation-line" key={line.id || `new-${index}`}>
               <label className="field line-product"><span className="field-label">Product</span><select className="input" name="product_id" value={line.product_id} onChange={(event) => updateLineValue(index, event)} disabled={busy || Boolean(line.id && editing)}><option value="">Select product</option>{products.map((product) => <option key={product.id} value={product.id}>{product.name} · {product.code}</option>)}</select></label>

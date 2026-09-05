@@ -18,7 +18,7 @@ export default function LoginPage() {
       {notice ? <p className="form-banner form-banner-muted">{notice}</p> : null}
       <LoginForm />
       <p className="auth-footer">
-        Need an account? <Link to="/register">Register</Link>
+        Need an account? <Link to="/register">Register</Link> • <Link to="/admin/login">Admin Console</Link>
       </p>
     </section>
     </div>

@@ -236,7 +236,7 @@ p,
 }
 
 .btn-primary {
-  background: var(--ink);
+  background: #8d0000;
   color: var(--paper);
 }
 

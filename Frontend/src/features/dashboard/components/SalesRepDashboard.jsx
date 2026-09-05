@@ -76,14 +76,14 @@ export default function SalesRepDashboard() {
 
 
       {/* Error Message */}
-      {error && (
+      {/* {error && (
         <div className="alert alert-error">
           <p>{error}</p>
           <button onClick={refetch} className="btn btn-sm btn-secondary">
             Retry
           </button>
         </div>
-      )}
+      )} */}
 
       {/* Quick Stats */}
       <div className="stats-grid">
@@ -158,7 +158,7 @@ export default function SalesRepDashboard() {
       {/* Quotations Table */}
       {filteredQuotations.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-state-icon">📋</div>
+          {/* <div className="empty-state-icon">📋</div> */}
           <h3>No quotations found</h3>
           <p>
             {selectedTab === 'all'

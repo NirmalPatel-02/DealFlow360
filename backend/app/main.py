@@ -59,9 +59,7 @@ app.include_router(admin_router)
 app.include_router(admin_dashboard_router)
 app.include_router(deal_health_router)
 app.include_router(reports_router)
-@property
-def is_verified(self) -> bool:
-    return self.is_email_verified
+
 @app.get("/health")
 async def health():
     return {

@@ -31,11 +31,11 @@ export default function LoginForm() {
     setSubmitting(true);
 
     try {
-      await login({
+      const user = await login({
         email: values.email.trim(),
         password: values.password,
       });
-      navigate('/dashboard', { replace: true });
+      navigate(user.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
     } catch (error) {
       if (getErrorCode(error) === AUTH_ERROR_CODES.EMAIL_NOT_VERIFIED) {
         navigate('/verify-email', {

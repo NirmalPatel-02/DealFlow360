@@ -1,252 +1,79 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuotations } from '../../quotations/quotations.hooks';
+import { useApprovalAction, useQuotations } from '../../quotations/quotations.hooks';
+import { getErrorMessage } from '../../../services/api/apiError';
 import './SalesManagerDashboard.css';
 
-const APPROVAL_STATUSES = {
-  PENDING: 'Pending Review',
-  APPROVED: 'Approved',
-  REJECTED: 'Rejected',
-  RETURNED: 'Returned for Revision',
-};
-
-const STATUS_BADGE_COLORS = {
-  PENDING: 'status-pending',
-  APPROVED: 'status-approved',
-  REJECTED: 'status-rejected',
-  RETURNED: 'status-revision',
-};
+const PAGE_SIZE = 8;
+const TABS = [
+  { id: 'pending', label: 'Pending review' },
+  { id: 'approved', label: 'Approved' },
+  { id: 'rejected', label: 'Rejected' },
+  { id: 'atRisk', label: 'At-risk deals' },
+];
+const STATUS_LABELS = { PENDING_APPROVAL: 'Pending review', APPROVED: 'Approved', REJECTED: 'Rejected' };
 
 export default function SalesManagerDashboard() {
   const [selectedTab, setSelectedTab] = useState('pending');
-
-  // Fetch all quotations for manager
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('risk_desc');
+  const [page, setPage] = useState(1);
+  const [actionError, setActionError] = useState('');
   const { quotations, loading, error, refetch } = useQuotations();
+  const { approve, acting } = useApprovalAction();
 
-  // Filter to only quotes that need manager approval or are awaiting next level
-  const pendingApprovals = quotations.filter(
-    (q) =>
-      q.status === 'PENDING_APPROVAL' ||
-      (q.approval_chain && q.approval_chain.some((a) => a.status === 'PENDING' && a.approval_level === 'MANAGER'))
-  );
+  const groups = useMemo(() => ({
+    pending: quotations.filter((quote) => quote.status === 'PENDING_APPROVAL'),
+    approved: quotations.filter((quote) => quote.status === 'APPROVED'),
+    rejected: quotations.filter((quote) => quote.status === 'REJECTED'),
+    atRisk: quotations.filter((quote) => Number(quote.risk_score || 0) > 50),
+  }), [quotations]);
 
-  const approvedByMe = quotations.filter(
-    (q) =>
-      q.approval_chain &&
-      q.approval_chain.some(
-        (a) => a.status === 'APPROVED' && a.approval_level === 'MANAGER' && a.acted_by_user_id
-      )
-  );
+  const filteredQuotes = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const matches = (groups[selectedTab] || []).filter((quote) => !query || [quote.quote_number, quote.id, quote.customer_id, quote.created_by_user_id].filter(Boolean).some((value) => String(value).toLowerCase().includes(query)));
+    return [...matches].sort((left, right) => {
+      if (sort === 'total_desc') return Number(right.grand_total || 0) - Number(left.grand_total || 0);
+      if (sort === 'total_asc') return Number(left.grand_total || 0) - Number(right.grand_total || 0);
+      if (sort === 'date_asc') return new Date(left.created_at) - new Date(right.created_at);
+      return Number(right.risk_score || 0) - Number(left.risk_score || 0);
+    });
+  }, [groups, search, selectedTab, sort]);
 
-  const rejectedByMe = quotations.filter(
-    (q) =>
-      q.approval_chain &&
-      q.approval_chain.some(
-        (a) => a.status === 'REJECTED' && a.approval_level === 'MANAGER' && a.acted_by_user_id
-      )
-  );
-
-  const atRiskDeals = quotations.filter(
-    (q) => q.risk_score && parseFloat(q.risk_score) > 50
-  );
-
+  const pageCount = Math.max(1, Math.ceil(filteredQuotes.length / PAGE_SIZE));
+  const visibleQuotes = filteredQuotes.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const stats = {
-    pending: pendingApprovals.length,
-    approved: approvedByMe.length,
-    rejected: rejectedByMe.length,
-    atRisk: atRiskDeals.length,
-    totalUnderReview: quotations.filter((q) => q.status === 'PENDING_APPROVAL').length,
+    pending: groups.pending.length,
+    approved: groups.approved.length,
+    rejected: groups.rejected.length,
+    atRisk: groups.atRisk.length,
+    totalUnderReview: quotations.filter((quote) => quote.status === 'PENDING_APPROVAL').length,
   };
 
-  let displayQuotes = [];
-  if (selectedTab === 'pending') {
-    displayQuotes = pendingApprovals;
-  } else if (selectedTab === 'approved') {
-    displayQuotes = approvedByMe;
-  } else if (selectedTab === 'rejected') {
-    displayQuotes = rejectedByMe;
-  } else if (selectedTab === 'atRisk') {
-    displayQuotes = atRiskDeals;
+  function selectTab(tab) { setSelectedTab(tab); setPage(1); }
+  function updateSearch(event) { setSearch(event.target.value); setPage(1); }
+
+  async function approveQuote(quoteId) {
+    setActionError('');
+    try { await approve(quoteId); await refetch(); } catch (requestError) { setActionError(getErrorMessage(requestError)); }
   }
 
-  if (loading) {
-    return (
-      <div className="dashboard-container">
-        <div className="page-status">
-          <p>Loading approvals…</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="dashboard-container"><div className="page-status"><p>Loading approvals…</p></div></div>;
 
   return (
     <div className="dashboard-container sales-manager-dashboard">
-      {/* Header */}
-      <div className="dashboard-header">
-        <div>
-          <h1 className="page-title">Sales Manager Dashboard</h1>
-          <p className="subheading">Review quotations, approve/reject discounts, and monitor at-risk deals</p>
-        </div>
-      </div>
+      <div className="dashboard-header"><div><p className="eyebrow">DealFlow360 / Governance</p><h1 className="page-title">Sales Manager Dashboard</h1><p className="subheading">Review discount-driven approvals and monitor deal risk.</p></div></div>
+      {error || actionError ? <div className="alert alert-error"><p>{error || actionError}</p><button onClick={refetch} className="btn btn-sm btn-secondary">Retry</button></div> : null}
 
+      <div className="stats-grid"><div className="stat-card highlight"><div className="stat-value">{stats.pending}</div><div className="stat-label">Pending my review</div></div><div className="stat-card success"><div className="stat-value">{stats.approved}</div><div className="stat-label">Approved</div></div><div className="stat-card warning"><div className="stat-value">{stats.rejected}</div><div className="stat-label">Rejected</div></div><div className="stat-card alert"><div className="stat-value">{stats.atRisk}</div><div className="stat-label">At-risk deals</div></div><div className="stat-card"><div className="stat-value">{stats.totalUnderReview}</div><div className="stat-label">Total under review</div></div></div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="alert alert-error">
-          <p>{error}</p>
-          <button onClick={refetch} className="btn btn-sm btn-secondary">
-            Retry
-          </button>
-        </div>
-      )}
+      <div className="manager-toolbar" role="search"><label className="field manager-search"><span className="field-label">Search quotations</span><input className="input" value={search} onChange={updateSearch} placeholder="Quote number or identifier" /></label><label className="field manager-sort"><span className="field-label">Sort by</span><select className="input" value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }}><option value="risk_desc">Risk: highest first</option><option value="total_desc">Total: highest first</option><option value="total_asc">Total: lowest first</option><option value="date_asc">Oldest first</option></select></label></div>
+      <div className="tabs-container"><div className="tabs">{TABS.map((tab) => <button key={tab.id} className={`tab ${selectedTab === tab.id ? 'active' : ''}`} onClick={() => selectTab(tab.id)}>{tab.label} ({stats[tab.id]})</button>)}</div></div>
 
-      {/* Quick Stats */}
-      <div className="stats-grid">
-        <div className="stat-card highlight">
-          <div className="stat-value">{stats.pending}</div>
-          <div className="stat-label">Pending My Review</div>
-        </div>
-        <div className="stat-card success">
-          <div className="stat-value">{stats.approved}</div>
-          <div className="stat-label">Approved by Me</div>
-        </div>
-        <div className="stat-card warning">
-          <div className="stat-value">{stats.rejected}</div>
-          <div className="stat-label">Rejected by Me</div>
-        </div>
-        <div className="stat-card alert">
-          <div className="stat-value">{stats.atRisk}</div>
-          <div className="stat-label">At-Risk Deals</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{stats.totalUnderReview}</div>
-          <div className="stat-label">Total Under Review</div>
-        </div>
-      </div>
+      {visibleQuotes.length === 0 ? <div className="empty-state"><div className="empty-state-icon">✓</div><h3>No quotations found</h3><p>{search ? 'Try a different search term.' : 'There are no quotations in this category.'}</p></div> : <div className="quotations-table-wrapper"><table className="data-table approvals-table"><thead><tr><th>Quote #</th><th>Customer ID</th><th>Total</th><th>Risk</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>{visibleQuotes.map((quote) => { const riskScore = Number(quote.risk_score || 0); const isPending = quote.status === 'PENDING_APPROVAL'; return <tr key={quote.id} className={riskScore > 50 ? 'row-highlight-warning' : ''}><td><Link to={`/quotations/${quote.id}`} className="quote-link">{quote.quote_number}</Link></td><td>{quote.customer_id}</td><td className="text-right">{quote.currency} {Number(quote.grand_total || 0).toFixed(2)}</td><td><span className={`risk-badge ${riskScore > 50 ? 'risk-high' : 'risk-low'}`}>{riskScore.toFixed(1)}%</span></td><td><span className="status-badge status-pending">{STATUS_LABELS[quote.status] || quote.status}</span></td><td className="text-sm text-gray-500">{new Date(quote.created_at).toLocaleDateString()}</td><td><div className="table-actions"><Link to={`/quotations/${quote.id}`} className="btn btn-sm btn-outline">Review</Link>{isPending && <button className="btn btn-sm btn-success" onClick={() => approveQuote(quote.id)} disabled={acting}>Approve</button>}</div></td></tr>; })}</tbody></table></div>}
 
-      {/* Tabs */}
-      <div className="tabs-container">
-        <div className="tabs">
-          <button
-            className={`tab ${selectedTab === 'pending' ? 'active' : ''}`}
-            onClick={() => setSelectedTab('pending')}
-          >
-            Pending Review ({stats.pending})
-          </button>
-          <button
-            className={`tab ${selectedTab === 'approved' ? 'active' : ''}`}
-            onClick={() => setSelectedTab('approved')}
-          >
-            Approved by Me ({stats.approved})
-          </button>
-          <button
-            className={`tab ${selectedTab === 'rejected' ? 'active' : ''}`}
-            onClick={() => setSelectedTab('rejected')}
-          >
-            Rejected by Me ({stats.rejected})
-          </button>
-          <button
-            className={`tab ${selectedTab === 'atRisk' ? 'active' : ''}`}
-            onClick={() => setSelectedTab('atRisk')}
-          >
-            At-Risk Deals ({stats.atRisk})
-          </button>
-        </div>
-      </div>
-
-      {/* Quotations Table */}
-      {displayQuotes.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">✅</div>
-          <h3>No items to review</h3>
-          <p>
-            {selectedTab === 'pending'
-              ? 'Great! All quotations waiting for your review have been handled.'
-              : 'No quotations in this category.'}
-          </p>
-        </div>
-      ) : (
-        <div className="quotations-table-wrapper">
-          <table className="data-table approvals-table">
-            <thead>
-              <tr>
-                <th>Quote #</th>
-                <th>Rep</th>
-                <th>Customer</th>
-                <th>Total</th>
-                <th>Risk Score</th>
-                <th>Status</th>
-                <th>Submitted</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayQuotes.map((quote) => {
-                const currentApproval = quote.approval_chain?.find(
-                  (a) => a.status === 'PENDING' && a.approval_level === 'MANAGER'
-                );
-                const riskScore = parseFloat(quote.risk_score || 0);
-                const isHighRisk = riskScore > 50;
-
-                return (
-                  <tr key={quote.id} className={isHighRisk ? 'row-highlight-warning' : ''}>
-                    <td>
-                      <Link to={`/quotations/${quote.id}`} className="quote-link">
-                        {quote.quote_number}
-                      </Link>
-                    </td>
-                    <td>{quote.created_by?.full_name || 'N/A'}</td>
-                    <td>{quote.customer?.name || 'N/A'}</td>
-                    <td className="text-right">
-                      {quote.currency} {parseFloat(quote.grand_total).toFixed(2)}
-                    </td>
-                    <td>
-                      <span className={`risk-badge ${isHighRisk ? 'risk-high' : 'risk-low'}`}>
-                        {riskScore.toFixed(1)}%
-                      </span>
-                    </td>
-                    <td>
-                      {currentApproval ? (
-                        <span className={`status-badge ${STATUS_BADGE_COLORS[currentApproval.status]}`}>
-                          {APPROVAL_STATUSES[currentApproval.status]}
-                        </span>
-                      ) : (
-                        <span className="status-badge">-</span>
-                      )}
-                    </td>
-                    <td className="text-sm text-gray-500">
-                      {new Date(quote.created_at).toLocaleDateString()}
-                    </td>
-                    <td>
-                      <div className="table-actions">
-                        <Link
-                          to={`/quotations/${quote.id}`}
-                          className="btn btn-sm btn-outline"
-                        >
-                          Review
-                        </Link>
-                        {selectedTab === 'pending' && (
-                          <button className="btn btn-sm btn-success" title="Approve">
-                            ✓
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Footer Info */}
-      <div className="dashboard-footer">
-        <p className="text-sm text-gray-500">
-          💡 <strong>Note:</strong> Click "Review" to see discount violations, risk scores, and approval chain.
-          Your approval moves the quote to Finance (if needed) or directly to "Approved".
-        </p>
-      </div>
+      <div className="manager-pagination"><span>Showing {filteredQuotes.length ? (page - 1) * PAGE_SIZE + 1 : 0}-{Math.min(page * PAGE_SIZE, filteredQuotes.length)} of {filteredQuotes.length}</span><div className="pagination-actions"><button className="btn btn-sm btn-outline" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1}>Previous</button><span>Page {page} of {pageCount}</span><button className="btn btn-sm btn-outline" onClick={() => setPage((current) => Math.min(pageCount, current + 1))} disabled={page >= pageCount}>Next</button></div></div>
+      <div className="dashboard-footer"><p className="text-sm text-gray-500"><strong>Review note:</strong> Approval eligibility and discount thresholds are enforced by backend governance and deal-engine services.</p></div>
     </div>
   );
 }

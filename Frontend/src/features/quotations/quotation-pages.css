@@ -112,6 +112,15 @@
 
 .quotation-actions-panel { margin-top: 1.25rem; }
 .approval-actions { display: grid; gap: 1rem; margin-top: 1.25rem; }
+.sales-rep-tools { margin-top: 1.25rem; }
+.tracking-summary { display: grid; gap: 0.35rem; padding: 1rem; border-left: 3px solid var(--sketch); background: #faf8f2; }
+.tracking-summary strong { color: var(--ink); text-transform: capitalize; }
+.tracking-summary span { color: var(--muted); font-size: 0.85rem; }
+.recommendation-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.85rem; }
+.recommendation-card { display: grid; gap: 0.45rem; padding: 1rem; border: 1px solid var(--line); border-radius: 8px; background: #faf8f2; }
+.recommendation-card strong { color: var(--ink); }
+.recommendation-card span, .recommendation-card small { color: var(--muted); }
+.negotiation-panel { display: grid; gap: 0.8rem; margin-top: 1.25rem; }
 .evaluation-result { display: grid; gap: 0.35rem; margin-top: 1rem; padding: 1rem; background: var(--banner); border: 1px solid #eadfaa; border-radius: 8px; }
 .evaluation-result strong { color: var(--ink); }
 .evaluation-result ul { margin: 0.5rem 0 0 1.25rem; }

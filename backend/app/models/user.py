@@ -32,6 +32,7 @@ class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
             "sales_manager",
             "finance",
             "operations",
+            "finance_ops",
             "customer",
             "admin",
             name="user_role",

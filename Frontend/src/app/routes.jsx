@@ -14,6 +14,10 @@ import DashboardPage from '../features/dashboard/pages/DashboardPage';
 import QuotationFormPage from '../features/quotations/pages/QuotationFormPage';
 import QuotationDetailPage from '../features/quotations/pages/QuotationDetailPage';
 import ProfilePage from '../features/profile/pages/ProfilePage';
+import AdminRoute from '../guards/AdminRoute';
+import AdminLoginPage from '../features/auth/pages/AdminLoginPage';
+import AdminLayout from '../layouts/AdminLayout';
+import AdminDashboardPage from '../features/admin/pages/AdminDashboardPage';
 
 function Root() {
   return (
@@ -38,7 +42,17 @@ export const router = createBrowserRouter([
               { path: '/register', element: <SignupPage /> },
               { path: '/verify-email', element: <VerifyEmailPage /> },
               { path: '/forgot-password', element: <ForgotPasswordPage /> },
+              { path: '/admin/login', element: <AdminLoginPage /> },
             ],
+          },
+        ],
+      },
+      {
+        element: <AdminRoute />,
+        children: [
+          {
+            element: <AdminLayout />,
+            children: [{ path: '/admin', element: <AdminDashboardPage /> }],
           },
         ],
       },

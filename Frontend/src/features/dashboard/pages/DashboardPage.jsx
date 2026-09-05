@@ -1,3 +1,4 @@
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import SalesRepDashboard from '../components/SalesRepDashboard';
 import SalesManagerDashboard from '../components/SalesManagerDashboard';
@@ -16,6 +17,8 @@ export default function DashboardPage() {
 
   // Route to role-based dashboard
   switch (user?.role) {
+    case 'admin':
+      return <Navigate to="/admin" replace />;
     case 'sales_rep':
       return <SalesRepDashboard />;
     case 'sales_manager':
@@ -26,8 +29,6 @@ export default function DashboardPage() {
       return <FinanceDashboard />;
     case 'customer':
       return <CustomerDashboard />;
-    case 'admin':
-      return <SalesManagerDashboard />; // Admin sees manager view
     default:
       return (
         <section className="auth-card dashboard-panel">
