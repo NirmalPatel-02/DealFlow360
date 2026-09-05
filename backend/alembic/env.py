@@ -9,6 +9,18 @@ from alembic import context
 from app.core.config import settings
 from app.db.base import Base
 from app.models import OTPCode, RefreshSession, User
+from app.models import (
+    BillingAuditLog,
+    BillingSchedule,
+    CreditNote,
+    Invoice,
+    InvoiceItem,
+    Order,
+    OrderItem,
+    Payment,
+    Subscription,
+    SubscriptionPlan,
+)
 
 
 config = context.config

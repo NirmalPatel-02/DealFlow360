@@ -8,9 +8,38 @@ from app.models.product import Product
 from app.models.product_variant import ProductVariant
 from app.models.price_list import PriceList
 from app.models.price_list_item import PriceListItem
+from app.models.billing import (
+    BillingAuditLog,
+    BillingSchedule,
+    CreditNote,
+    Invoice,
+    InvoiceItem,
+    Order,
+    OrderItem,
+    Payment,
+    Subscription,
+    SubscriptionPlan,
+)
 
 __all__ = [
     "User",
     "OTPCode",
     "RefreshSession",
+    "Customer",
+    "CustomerContact",
+    "Category",
+    "Product",
+    "ProductVariant",
+    "PriceList",
+    "PriceListItem",
+    "Order",
+    "OrderItem",
+    "SubscriptionPlan",
+    "Subscription",
+    "Invoice",
+    "InvoiceItem",
+    "Payment",
+    "CreditNote",
+    "BillingSchedule",
+    "BillingAuditLog",
 ]
