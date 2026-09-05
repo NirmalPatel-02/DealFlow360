@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 class UserRole(str, Enum):
     SALES_REP = "sales_rep"
     SALES_MANAGER = "sales_manager"
@@ -8,8 +7,12 @@ class UserRole(str, Enum):
     ADMIN = "admin"
     CUSTOMER = "customer"
 
-
 class CustomerTier(str, Enum):
     BRONZE = "bronze"
     SILVER = "silver"
     GOLD = "gold"
+
+class ProductType(str, Enum):
+    HARDWARE = "hardware"
+    SERVICE = "service"
+    SUBSCRIPTION = "subscription"
