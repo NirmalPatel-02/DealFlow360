@@ -39,8 +39,8 @@ class Settings(BaseSettings):
     BREVO_SENDER_NAME: str = "DealFlow360"
     BREVO_SENDER_EMAIL: str = ""
 
-    PASSWORD_MIN_LENGTH: int = 12
-    PASSWORD_MAX_LENGTH: int = 128
+    PASSWORD_MIN_LENGTH: int = 8
+    PASSWORD_MAX_LENGTH: int = 40
 
     def cors_origins(self) -> list[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]

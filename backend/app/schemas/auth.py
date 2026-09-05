@@ -6,8 +6,8 @@ from pydantic import BaseModel, EmailStr, Field, StringConstraints, model_valida
 Password = Annotated[
     str,
     StringConstraints(
-        min_length=12,
-        max_length=128,
+        min_length=8,
+        max_length=40,
     ),
 ]
 
