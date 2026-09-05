@@ -15,7 +15,10 @@ from app.api.approvals import router as approvals_router
 from app.api.recommendations import router as recommendations_router
 from app.api.fulfillment import router as fulfillment_router
 from app.api.portal import router as portal_router
-
+from app.api.admin import router as admin_router
+from app.api.admin_dashboard import router as admin_dashboard_router
+from app.api.deal_health import router as deal_health_router
+from app.api.reports import router as reports_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -52,6 +55,10 @@ app.include_router(recommendations_router)
 app.include_router(fulfillment_router)
 
 app.include_router(portal_router)
+app.include_router(admin_router)
+app.include_router(admin_dashboard_router)
+app.include_router(deal_health_router)
+app.include_router(reports_router)
 
 @app.get("/health")
 async def health():
