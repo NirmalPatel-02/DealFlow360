@@ -59,12 +59,98 @@ export default function ProfilePage() {
   const initials = (user.full_name || 'User').split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
 
   return (
-    <section className="quotation-page profile-page">
-      <div className="quotation-page-header"><div><p className="eyebrow">DealFlow360 / Account</p><h1 className="page-title">Profile</h1><p className="subheading">Manage your account details and sign-in security.</p></div><Link to="/dashboard" className="btn btn-outline">Back to dashboard</Link></div>
-      <div className="profile-layout">
-        <section className="profile-detail-card"><div className="profile-avatar profile-avatar-large">{initials}</div><div><p className="eyebrow">Signed in as</p><h2>{user.full_name}</h2><p>{ROLE_LABELS[user.role] || user.role}</p><span>{user.email}</span></div><dl><dt>Email verification</dt><dd>{user.is_email_verified ? 'Verified' : 'Pending'}</dd></dl></section>
-        <section className="quotation-form-section"><p className="eyebrow">Security</p><h2>Change password</h2><p className="body-copy">Use your current password to choose a new one. You will be signed out after the change.</p>{formError ? <p className="form-banner">{formError}</p> : null}{notice ? <p className="form-banner form-banner-muted">{notice}</p> : null}<form className="auth-form" onSubmit={handleSubmit} noValidate><Field label="Current password" name="current_password" type="password" value={values.current_password} onChange={handleChange} error={errors.current_password} autoComplete="current-password" /><Field label="New password" name="new_password" type="password" value={values.new_password} onChange={handleChange} error={errors.new_password} autoComplete="new-password" /><Field label="Confirm new password" name="confirm_password" type="password" value={values.confirm_password} onChange={handleChange} error={errors.confirm_password} autoComplete="new-password" /><button type="submit" className="btn btn-primary" disabled={submitting}>{submitting ? 'Changing password…' : 'Change password'}</button></form></section>
+   <section className="quotation-page profile-page">
+  <div className="quotation-page-header">
+    <div>
+      <p className="eyebrow">DealFlow360 / Account</p>
+      <h1 className="page-title">Profile</h1>
+      <p className="subheading">
+        Manage your account details and sign-in security.
+      </p>
+    </div>
+
+    <Link to="/dashboard" className="btn btn-outline">
+      Back to dashboard
+    </Link>
+  </div>
+
+  <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+    <section className="profile-detail-card">
+      <div className="flex items-center gap-5">
+        <div className="profile-avatar profile-avatar-large shrink-0">
+          {initials}
+        </div>
+
+        <div className="min-w-0">
+          <p className="eyebrow mb-1">Signed in as</p>
+          <h2 className="truncate">{user.full_name}</h2>
+          <p className="mt-2">{ROLE_LABELS[user.role] || user.role}</p>
+          <p className="truncate opacity-70">{user.email}</p>
+        </div>
+      </div>
+
+      <div className="my-6 border-t border-white/10 pt-5">
+        <div className="flex items-center justify-between gap-4">
+          <span className="opacity-60">Email verification</span>
+          <span className="font-semibold">
+            {user.is_email_verified ? "Verified" : "Pending"}
+          </span>
+        </div>
       </div>
     </section>
+
+    <section className="quotation-form-section">
+      <p className="eyebrow">Security</p>
+      <h2>Change password</h2>
+      <p className="body-copy">
+        Use your current password to choose a new one. You will be signed out
+        after the change.
+      </p>
+
+      {formError && <p className="form-banner">{formError}</p>}
+      {notice && <p className="form-banner form-banner-muted">{notice}</p>}
+
+      <form className="auth-form mt-6" onSubmit={handleSubmit} noValidate>
+        <Field
+          label="Current password"
+          name="current_password"
+          type="password"
+          value={values.current_password}
+          onChange={handleChange}
+          error={errors.current_password}
+          autoComplete="current-password"
+        />
+
+        <Field
+          label="New password"
+          name="new_password"
+          type="password"
+          value={values.new_password}
+          onChange={handleChange}
+          error={errors.new_password}
+          autoComplete="new-password"
+        />
+
+        <Field
+          label="Confirm new password"
+          name="confirm_password"
+          type="password"
+          value={values.confirm_password}
+          onChange={handleChange}
+          error={errors.confirm_password}
+          autoComplete="new-password"
+        />
+
+        <button
+          type="submit"
+          className="btn btn-primary mt-1"
+          disabled={submitting}
+        >
+          {submitting ? "Changing password…" : "Change password"}
+        </button>
+      </form>
+    </section>
+  </div>
+</section>
   );
 }

@@ -452,7 +452,7 @@ export default function AdminDashboardPage() {
       {/* Page Header */}
       <div className="admin-heading">
         <div>
-          <p className="eyebrow">DealFlow360 / Governance & Catalog</p>
+          <p className="eyebrow">Governance & Catalog</p>
           <h1 className="page-title">Admin <span className="heading-keyword">Control Center</span></h1>
           <p className="subheading">
             Manage commercial catalogs, role permissions, approval chains, and governance guardrails.

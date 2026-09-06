@@ -398,22 +398,37 @@ export default function FulfillmentPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="dashboard-container">
+        <div className="page-status">
+          <p>Loading operations & fulfillment data…</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="fulfillment-workspace">
-      {/* Workspace Header */}
-      <header className="workspace-header">
+    <div className="dashboard-container fulfillment-dashboard">
+      {/* Header */}
+      <div className="dashboard-header">
         <div>
-          <h1>Operations & Fulfillment Hub</h1>
-          <p>Multi-facility warehouse allocations, stock reservations, freight routing, and dispatching.</p>
+          <h1 className="page-title">Operations & Fulfillment <span className="heading-keyword">Hub</span></h1>
+          <p className="subheading">
+            Multi-facility warehouse allocations, stock reservations, freight routing, and dispatching.
+          </p>
         </div>
         <div className="header-actions">
+          <button type="button" className="btn btn-outline" onClick={loadInitialData}>
+            <Icon name="refresh" size={13} style={{ marginRight: '6px' }} /> Refresh
+          </button>
           {canOperate && (
             <button
               type="button"
               className="btn btn-outline"
               onClick={() => setIsAdjustModalOpen(true)}
             >
-              Adjust Inventory Stock
+              <Icon name="edit" size={13} style={{ marginRight: '6px' }} /> Adjust Stock
             </button>
           )}
           {isAdmin && (
@@ -426,108 +441,116 @@ export default function FulfillmentPage() {
             </button>
           )}
         </div>
-      </header>
+      </div>
 
       {/* Global Alerts */}
       {errorBanner && (
-        <div className="modal-alert-error" style={{ margin: '0 0 1.5rem 0' }}>
-          {errorBanner}
+        <div className="form-banner form-banner-error" style={{ marginBottom: '1.5rem' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <Icon name="alert-triangle" size={16} color="#ef4444" /> {errorBanner}
+          </span>
+          <button type="button" onClick={() => setErrorBanner('')} className="btn btn-sm btn-outline" style={{ marginLeft: '1rem' }}>
+            Dismiss
+          </button>
         </div>
       )}
       {successBanner && (
-        <div
-          style={{
-            margin: '0 0 1.5rem 0',
-            background: 'rgba(16, 185, 129, 0.15)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            color: '#6ee7b7',
-            padding: '0.75rem 1rem',
-            borderRadius: '8px',
-            fontSize: '0.88rem',
-          }}
-        >
-          {successBanner}
+        <div className="form-banner form-banner-success" style={{ marginBottom: '1.5rem', background: '#dcfce7', border: '1px solid #86efac', color: '#166534', padding: '0.75rem 1rem', borderRadius: '8px', fontSize: '0.88rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <Icon name="check" size={16} color="#166534" /> {successBanner}
+          </span>
+          <button type="button" onClick={() => setSuccessBanner('')} className="btn btn-sm btn-outline" style={{ marginLeft: '1rem' }}>
+            Dismiss
+          </button>
         </div>
       )}
 
-      {/* Top Operational KPIs */}
-      <section className="fulfillment-kpi-grid">
-        <div className="fulfillment-kpi-card">
-          <div className="kpi-icon-box"><Icon name="warehouse" size={22} color="#6366f1" /></div>
-          <div className="kpi-content">
-            <span className="kpi-val">{kpis.totalWarehouses}</span>
-            <span className="kpi-lbl">Active Facilities</span>
-          </div>
-        </div>
-
-        <div className="fulfillment-kpi-card">
-          <div className="kpi-icon-box green"><Icon name="package" size={22} color="#10b981" /></div>
-          <div className="kpi-content">
-            <span className="kpi-val">{kpis.totalAvailable}</span>
-            <span className="kpi-lbl">Available Stock Units</span>
-          </div>
-        </div>
-
-        <div className="fulfillment-kpi-card">
-          <div className="kpi-icon-box cyan"><Icon name="lock" size={22} color="#06b6d4" /></div>
-          <div className="kpi-content">
-            <span className="kpi-val">{kpis.totalReserved}</span>
-            <span className="kpi-lbl">Reserved in Plans</span>
-          </div>
-        </div>
-
-        <div className="fulfillment-kpi-card">
-          <div className="kpi-icon-box amber"><Icon name="truck" size={22} color="#f59e0b" /></div>
-          <div className="kpi-content">
-            <span className="kpi-val">{kpis.readyQuotesCount}</span>
-            <span className="kpi-lbl">Ready for Dispatch</span>
-          </div>
-        </div>
-
-        <div className="fulfillment-kpi-card">
-          <div className="kpi-icon-box amber"><Icon name="alert-triangle" size={22} color="#f59e0b" /></div>
-          <div className="kpi-content">
-            <span className="kpi-val">{kpis.openBO}</span>
-            <span className="kpi-lbl">Open Backorders</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Tabs Navigation */}
-      <nav className="workspace-tabs">
-        <button
-          type="button"
-          className={`workspace-tab-btn ${activeTab === 'dispatches' ? 'active' : ''}`}
-          onClick={() => setActiveTab('dispatches')}
-        >
-          Fulfillment Plans & Dispatches
-          <span className="tab-badge">{fulfillmentQuotes.length}</span>
-        </button>
-        <button
-          type="button"
-          className={`workspace-tab-btn ${activeTab === 'inventory' ? 'active' : ''}`}
+      {/* Quick Stats Grid */}
+      <div className="stats-grid">
+        <div
+          className={`stat-card ${activeTab === 'inventory' ? 'highlight' : ''}`}
           onClick={() => setActiveTab('inventory')}
         >
-          Warehouses & Inventory Stock
-          <span className="tab-badge">{warehouses.length}</span>
-        </button>
-        <button
-          type="button"
-          className={`workspace-tab-btn ${activeTab === 'backorders' ? 'active' : ''}`}
+          <div className="stat-value">{kpis.totalWarehouses}</div>
+          <div className="stat-label">Active Facilities</div>
+        </div>
+
+        <div
+          className={`stat-card success ${activeTab === 'inventory' ? 'highlight' : ''}`}
+          onClick={() => setActiveTab('inventory')}
+        >
+          <div className="stat-value">{kpis.totalAvailable}</div>
+          <div className="stat-label">Available Stock Units</div>
+        </div>
+
+        <div
+          className={`stat-card ${activeTab === 'dispatches' ? 'highlight' : ''}`}
+          onClick={() => setActiveTab('dispatches')}
+        >
+          <div className="stat-value">{kpis.totalReserved}</div>
+          <div className="stat-label">Reserved in Plans</div>
+        </div>
+
+        <div
+          className={`stat-card ${kpis.readyQuotesCount > 0 ? 'warning' : ''} ${activeTab === 'dispatches' ? 'highlight' : ''}`}
+          onClick={() => setActiveTab('dispatches')}
+        >
+          <div className="stat-value">{kpis.readyQuotesCount}</div>
+          <div className="stat-label">Ready for Dispatch</div>
+        </div>
+
+        <div
+          className={`stat-card ${kpis.openBO > 0 ? 'alert' : ''} ${activeTab === 'backorders' ? 'highlight' : ''}`}
           onClick={() => setActiveTab('backorders')}
         >
-          Backorders Console
-          {kpis.openBO > 0 && <span className="tab-badge warning">{kpis.openBO}</span>}
-        </button>
-        <button
-          type="button"
-          className={`workspace-tab-btn ${activeTab === 'replenishment' ? 'active' : ''}`}
-          onClick={() => setActiveTab('replenishment')}
-        >
-          Replenishment Rules
-          <span className="tab-badge">{replenishmentRules.length}</span>
-        </button>
-      </nav>
+          <div className="stat-value">{kpis.openBO}</div>
+          <div className="stat-label">Open Backorders</div>
+        </div>
+      </div>
+
+      {/* Toolbar: Tabs & Search */}
+      <div className="tabs-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="tabs">
+          <button
+            type="button"
+            className={`tab ${activeTab === 'dispatches' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dispatches')}
+          >
+            Dispatches ({fulfillmentQuotes.length})
+          </button>
+          <button
+            type="button"
+            className={`tab ${activeTab === 'inventory' ? 'active' : ''}`}
+            onClick={() => setActiveTab('inventory')}
+          >
+            Warehouses & Stock ({warehouses.length})
+          </button>
+          <button
+            type="button"
+            className={`tab ${activeTab === 'backorders' ? 'active' : ''}`}
+            onClick={() => setActiveTab('backorders')}
+          >
+            Backorders ({kpis.openBO})
+          </button>
+          <button
+            type="button"
+            className={`tab ${activeTab === 'replenishment' ? 'active' : ''}`}
+            onClick={() => setActiveTab('replenishment')}
+          >
+            Replenishment Rules ({replenishmentRules.length})
+          </button>
+        </div>
+
+        <div style={{ minWidth: '240px' }}>
+          <input
+            className="input"
+            style={{ padding: '0.5rem 0.85rem', fontSize: '0.9rem', width: '100%' }}
+            placeholder="Search quote # or customer…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
 
       {/* ========================================================= */}
       {/* TAB 1: FULFILLMENT PLANS & DISPATCHES */}
@@ -537,23 +560,15 @@ export default function FulfillmentPage() {
           <div className="panel-card">
             <div className="panel-card-header">
               <h3>Approved Quotations Awaiting Dispatch</h3>
-              <div className="search-input-wrap">
-                <input
-                  type="text"
-                  placeholder="Filter by quote # or customer..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
             </div>
 
-            <div className="table-responsive">
-              <table className="data-table">
+            <div className="quotations-table-wrapper">
+              <table className="data-table quotations-table">
                 <thead>
                   <tr>
                     <th>Quote #</th>
                     <th>Customer Account</th>
-                    <th>Grand Total</th>
+                    <th className="text-right">Grand Total</th>
                     <th>Status</th>
                     <th>Plan State</th>
                     <th>Fulfillment Actions</th>
@@ -575,21 +590,23 @@ export default function FulfillmentPage() {
                         <tr
                           key={q.id}
                           style={{
-                            background: isSelected ? 'rgba(99, 102, 241, 0.08)' : undefined,
+                            background: isSelected ? '#f0fdf4' : undefined,
                             cursor: 'pointer',
                           }}
                           onClick={() => handleSelectQuote(q.id)}
                         >
                           <td>
-                            <strong>{q.quote_number}</strong>
+                            <Link to={`/quotations/${q.id}`} className="quote-link" style={{ fontWeight: 600 }}>
+                              {q.quote_number}
+                            </Link>
                           </td>
                           <td>
                             <div>
-                              <span>{cust?.name || 'Customer Account'}</span>
-                              {cust?.tier && <small className="text-muted"> · {cust.tier.toUpperCase()}</small>}
+                              <strong>{cust?.name || 'Customer Account'}</strong>
+                              {cust?.tier && <span className="admin-tier-badge" style={{ marginLeft: '0.5rem', fontSize: '0.68rem' }}>{cust.tier.toUpperCase()}</span>}
                             </div>
                           </td>
-                          <td>
+                          <td className="text-right">
                             <strong>{formatCurrency(q.grand_total)}</strong>
                           </td>
                           <td>
@@ -603,14 +620,14 @@ export default function FulfillmentPage() {
                                 {String(activePlan.status).replace('_', ' ').toUpperCase()}
                               </span>
                             ) : (
-                              <span className="text-muted text-sm">Select to inspect</span>
+                              <span className="text-gray-500 text-sm">Select to inspect</span>
                             )}
                           </td>
                           <td>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <div className="table-actions">
                               <button
                                 type="button"
-                                className="btn btn-xs btn-outline"
+                                className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline'}`}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleSelectQuote(q.id);
@@ -625,7 +642,7 @@ export default function FulfillmentPage() {
                     })}
                   {fulfillmentQuotes.length === 0 && (
                     <tr>
-                      <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                      <td colSpan="6" className="text-center" style={{ padding: '2.5rem', color: '#6b7280' }}>
                         No approved quotations currently waiting for fulfillment dispatch.
                       </td>
                     </tr>
@@ -697,15 +714,15 @@ export default function FulfillmentPage() {
                 <div style={{ marginBottom: '1.5rem' }}>
                   <div
                     style={{
-                      background: 'rgba(99, 102, 241, 0.1)',
-                      border: '1px solid rgba(99, 102, 241, 0.3)',
+                      background: '#f0f7ff',
+                      border: '1px solid #bfdbfe',
                       borderRadius: '8px',
                       padding: '1rem',
                       marginBottom: '1rem',
                     }}
                   >
-                    <h4>Proposed Allocation Recommendation</h4>
-                    <p style={{ margin: '0.25rem 0', color: '#cbd5e1' }}>
+                    <h4 style={{ margin: '0 0 0.25rem 0', color: '#1e40af' }}>Proposed Allocation Recommendation</h4>
+                    <p style={{ margin: 0, color: '#374151' }}>
                       Optimal routing: <strong>{recommendation.shipment_count} facility hub(s)</strong> with an
                       estimated freight cost of <strong>{formatCurrency(recommendation.estimated_shipping_cost)}</strong>.
                     </p>
@@ -765,16 +782,16 @@ export default function FulfillmentPage() {
               <h3>Regional Warehouse Facilities</h3>
             </div>
 
-            <div className="table-responsive">
-              <table className="data-table">
+            <div className="quotations-table-wrapper">
+              <table className="data-table quotations-table">
                 <thead>
                   <tr>
                     <th>Code</th>
                     <th>Warehouse Facility</th>
                     <th>Location</th>
-                    <th>Fixed Freight</th>
-                    <th>Freight / Unit</th>
-                    <th>Weight Multiplier</th>
+                    <th className="text-right">Fixed Freight</th>
+                    <th className="text-right">Freight / Unit</th>
+                    <th className="text-center">Weight Multiplier</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -790,9 +807,9 @@ export default function FulfillmentPage() {
                       <td>
                         {wh.city || wh.state ? `${wh.city || ''}, ${wh.state || ''}` : 'Primary Hub'}
                       </td>
-                      <td>{formatCurrency(wh.shipping_fixed_cost)}</td>
-                      <td>{formatCurrency(wh.shipping_cost_per_unit)}</td>
-                      <td>{Number(wh.shipping_cost_weight || 1).toFixed(2)}x</td>
+                      <td className="text-right">{formatCurrency(wh.shipping_fixed_cost)}</td>
+                      <td className="text-right">{formatCurrency(wh.shipping_cost_per_unit)}</td>
+                      <td className="text-center">{Number(wh.shipping_cost_weight || 1).toFixed(2)}x</td>
                       <td>
                         <span className={`status-pill ${wh.is_active ? 'status-fulfilled' : 'status-cancelled'}`}>
                           {wh.is_active ? 'ACTIVE' : 'INACTIVE'}
@@ -802,7 +819,7 @@ export default function FulfillmentPage() {
                   ))}
                   {warehouses.length === 0 && (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                      <td colSpan="7" className="text-center" style={{ padding: '2.5rem', color: '#6b7280' }}>
                         No warehouse facilities configured yet. Click "+ Add Warehouse Hub" above.
                       </td>
                     </tr>
@@ -817,15 +834,15 @@ export default function FulfillmentPage() {
               <h3>Inventory Stock Balances</h3>
             </div>
 
-            <div className="table-responsive">
-              <table className="data-table">
+            <div className="quotations-table-wrapper">
+              <table className="data-table quotations-table">
                 <thead>
                   <tr>
                     <th>Facility Hub</th>
                     <th>Product / Hardware SKU</th>
-                    <th>On-Hand Stock</th>
-                    <th>Reserved for Plans</th>
-                    <th>Available to Promise</th>
+                    <th className="text-center">On-Hand Stock</th>
+                    <th className="text-center">Reserved for Plans</th>
+                    <th className="text-center">Available to Promise</th>
                     <th>Stock Action</th>
                   </tr>
                 </thead>
@@ -846,18 +863,18 @@ export default function FulfillmentPage() {
                           <strong>{prod?.name || 'Hardware SKU'}</strong>
                           {prod?.code && <span className="item-sku"> · {prod.code}</span>}
                         </td>
-                        <td>
+                        <td className="text-center">
                           <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{onHand}</span>
                         </td>
-                        <td>
-                          <span style={{ fontFamily: 'monospace', color: '#fbbf24' }}>{reserved}</span>
+                        <td className="text-center">
+                          <span style={{ fontFamily: 'monospace', color: '#d97706', fontWeight: 'bold' }}>{reserved}</span>
                         </td>
-                        <td>
+                        <td className="text-center">
                           <span
                             style={{
                               fontFamily: 'monospace',
                               fontWeight: 'bold',
-                              color: available > 0 ? '#34d399' : '#f87171',
+                              color: available > 0 ? '#166534' : '#dc2626',
                             }}
                           >
                             {available}
@@ -865,21 +882,23 @@ export default function FulfillmentPage() {
                         </td>
                         <td>
                           {canOperate && (
-                            <button
-                              type="button"
-                              className="btn btn-xs btn-outline"
-                              onClick={() => {
-                                setAdjustData({
-                                  warehouse_id: inv.warehouse_id,
-                                  product_id: inv.product_id,
-                                  quantity_delta: '',
-                                  reason: '',
-                                });
-                                setIsAdjustModalOpen(true);
-                              }}
-                            >
-                              Adjust Stock
-                            </button>
+                            <div className="table-actions">
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline"
+                                onClick={() => {
+                                  setAdjustData({
+                                    warehouse_id: inv.warehouse_id,
+                                    product_id: inv.product_id,
+                                    quantity_delta: '',
+                                    reason: '',
+                                  });
+                                  setIsAdjustModalOpen(true);
+                                }}
+                              >
+                                Adjust Stock
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -887,7 +906,7 @@ export default function FulfillmentPage() {
                   })}
                   {inventory.length === 0 && (
                     <tr>
-                      <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                      <td colSpan="6" className="text-center" style={{ padding: '2.5rem', color: '#6b7280' }}>
                         No inventory stock records found.
                       </td>
                     </tr>
@@ -909,13 +928,13 @@ export default function FulfillmentPage() {
               <h3>Unfulfilled Backorders Queue</h3>
             </div>
 
-            <div className="table-responsive">
-              <table className="data-table">
+            <div className="quotations-table-wrapper">
+              <table className="data-table quotations-table">
                 <thead>
                   <tr>
                     <th>Quotation</th>
                     <th>Hardware Item</th>
-                    <th>Units Remaining</th>
+                    <th className="text-center">Units Remaining</th>
                     <th>Status</th>
                     <th>Expected ETA</th>
                     <th>Consolidation Action</th>
@@ -936,7 +955,7 @@ export default function FulfillmentPage() {
                         <td>
                           <strong>{prod?.name || 'Hardware Line Item'}</strong>
                         </td>
-                        <td>
+                        <td className="text-center">
                           <span className="bo-qty-badge">{bo.quantity_remaining} Units</span>
                         </td>
                         <td>
@@ -949,14 +968,16 @@ export default function FulfillmentPage() {
                         </td>
                         <td>
                           {canOperate && String(bo.status).toLowerCase() === 'open' && (
-                            <button
-                              type="button"
-                              className="btn btn-xs btn-outline consolidate-btn"
-                              disabled={actionLoading}
-                              onClick={() => handleConsolidateBackorder(bo.id)}
-                            >
-                              Consolidate Stock
-                            </button>
+                            <div className="table-actions">
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline consolidate-btn"
+                                disabled={actionLoading}
+                                onClick={() => handleConsolidateBackorder(bo.id)}
+                              >
+                                Consolidate Stock
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -964,7 +985,7 @@ export default function FulfillmentPage() {
                   })}
                   {backorders.length === 0 && (
                     <tr>
-                      <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                      <td colSpan="6" className="text-center" style={{ padding: '2.5rem', color: '#6b7280' }}>
                         No active backorders currently recorded. All demands are fulfilled.
                       </td>
                     </tr>
@@ -986,15 +1007,15 @@ export default function FulfillmentPage() {
               <h3>Automated Inventory Replenishment Rules</h3>
             </div>
 
-            <div className="table-responsive">
-              <table className="data-table">
+            <div className="quotations-table-wrapper">
+              <table className="data-table quotations-table">
                 <thead>
                   <tr>
                     <th>Warehouse Hub</th>
                     <th>Product</th>
-                    <th>Reorder Point (Threshold)</th>
-                    <th>Reorder Quantity</th>
-                    <th>Max Stock</th>
+                    <th className="text-center">Reorder Point (Threshold)</th>
+                    <th className="text-center">Reorder Quantity</th>
+                    <th className="text-center">Max Stock</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1010,15 +1031,15 @@ export default function FulfillmentPage() {
                         <td>
                           <strong>{prod?.name || 'Product'}</strong>
                         </td>
-                        <td>{rule.reorder_point} units</td>
-                        <td>{rule.reorder_quantity} units</td>
-                        <td>{rule.max_stock ? `${rule.max_stock} units` : 'Uncapped'}</td>
+                        <td className="text-center">{rule.reorder_point} units</td>
+                        <td className="text-center">{rule.reorder_quantity} units</td>
+                        <td className="text-center">{rule.max_stock ? `${rule.max_stock} units` : 'Uncapped'}</td>
                       </tr>
                     );
                   })}
                   {replenishmentRules.length === 0 && (
                     <tr>
-                      <td colSpan="5" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                      <td colSpan="5" className="text-center" style={{ padding: '2.5rem', color: '#6b7280' }}>
                         No replenishment rules configured.
                       </td>
                     </tr>
@@ -1056,14 +1077,14 @@ export default function FulfillmentPage() {
             <form onSubmit={handleExecuteDispatch} className="modal-form">
               <div className="form-group">
                 <label>Warehouse Hub</label>
-                <div style={{ color: '#f1f5f9', fontWeight: 'bold' }}>
+                <div style={{ color: 'var(--ink, #1f2937)', fontWeight: 'bold' }}>
                   {warehouseMap[dispatchModalAllocation.warehouse_id]?.name || 'Warehouse'}
                 </div>
               </div>
 
               <div className="form-group">
                 <label>Allocated vs Dispatched</label>
-                <div style={{ color: '#94a3b8' }}>
+                <div style={{ color: 'var(--muted, #6b7280)' }}>
                   Total Allocated: <strong>{dispatchModalAllocation.allocated_quantity}</strong> | Already Dispatched: <strong>{dispatchModalAllocation.fulfilled_quantity}</strong>
                 </div>
               </div>

@@ -286,187 +286,232 @@ export default function InvoiceListPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="dashboard-container">
+        <div className="page-status">
+          <p>Loading billing & invoice records…</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="billing-workspace">
-      {/* Page Header */}
-      <div className="workspace-header">
+    <div className="dashboard-container billing-dashboard">
+      {/* Header */}
+      <div className="dashboard-header">
         <div>
-          <h1>Billing, Invoicing & Receivables</h1>
-          <p>Commercial order conversion, invoice generation, payment reconciliation & subscription lifecycle</p>
+          <h1 className="page-title">Billing, Invoicing & <span className="heading-keyword">Receivables</span></h1>
+          <p className="subheading">
+            Commercial order conversion, invoice generation, payment reconciliation & subscription lifecycle.
+          </p>
         </div>
         <div className="header-actions">
+          <button type="button" className="btn btn-outline" onClick={loadData}>
+            <Icon name="refresh" size={13} style={{ marginRight: '6px' }} /> Refresh
+          </button>
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-outline"
             onClick={() => setConvertModalOpen(true)}
           >
-            <Icon name="document" size={15} style={{ marginRight: '6px' }} /> Convert Approved Quote
+            <Icon name="document" size={14} style={{ marginRight: '6px' }} /> Convert Quote
           </button>
           <button
             type="button"
             className="btn btn-primary"
             onClick={() => setCreateInvoiceModalOpen(true)}
           >
-            <Icon name="zap" size={15} style={{ marginRight: '6px' }} /> Generate Invoice
+            <Icon name="zap" size={14} style={{ marginRight: '6px' }} /> Generate Invoice
           </button>
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-outline"
             onClick={() => setPlanModalOpen(true)}
           >
-            <Icon name="plus" size={15} style={{ marginRight: '6px' }} /> New Subscription Plan
+            <Icon name="plus" size={14} style={{ marginRight: '6px' }} /> New Plan
           </button>
         </div>
       </div>
 
-      {/* KPI Banner */}
-      <div className="billing-kpi-grid">
-        <div className="billing-kpi-card">
-          <div className="kpi-icon-box indigo"><Icon name="document" size={22} color="#6366f1" /></div>
-          <div className="kpi-content">
-            <span className="kpi-label">Total Invoiced</span>
-            <span className="kpi-value">{fmt(kpiData.totalInvoiced)}</span>
-          </div>
+      {/* Error Banner */}
+      {error && (
+        <div className="form-banner form-banner-error" style={{ marginBottom: '1.5rem' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <Icon name="alert-triangle" size={16} color="#ef4444" /> {error}
+          </span>
+          <button type="button" onClick={() => setError(null)} className="btn btn-sm btn-outline" style={{ marginLeft: '1rem' }}>
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          className={`form-banner form-banner-${toast.type === 'error' ? 'error' : 'success'}`}
+          style={{
+            marginBottom: '1.5rem',
+            background: toast.type === 'error' ? '#fee2e2' : '#dcfce7',
+            border: `1px solid ${toast.type === 'error' ? '#fca5a5' : '#86efac'}`,
+            color: toast.type === 'error' ? '#991b1b' : '#166534',
+            padding: '0.75rem 1rem',
+            borderRadius: '8px',
+            fontSize: '0.88rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <Icon name={toast.type === 'error' ? 'alert-triangle' : 'check'} size={16} color={toast.type === 'error' ? '#991b1b' : '#166534'} /> {toast.message}
+          </span>
+          <button type="button" onClick={() => setToast(null)} className="btn btn-sm btn-outline" style={{ marginLeft: '1rem' }}>
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Quick Stats Grid */}
+      <div className="stats-grid">
+        <div
+          className={`stat-card ${activeTab === 'invoices' ? 'highlight' : ''}`}
+          onClick={() => handleTabChange('invoices')}
+        >
+          <div className="stat-value">{fmt(kpiData.totalInvoiced)}</div>
+          <div className="stat-label">Total Invoiced</div>
         </div>
 
-        <div className="billing-kpi-card">
-          <div className="kpi-icon-box emerald"><Icon name="cash" size={22} color="#10b981" /></div>
-          <div className="kpi-content">
-            <span className="kpi-label">Collected / Settled</span>
-            <span className="kpi-value">{fmt(kpiData.totalPaid)}</span>
-          </div>
+        <div
+          className={`stat-card success ${activeTab === 'invoices' ? 'highlight' : ''}`}
+          onClick={() => handleTabChange('invoices')}
+        >
+          <div className="stat-value">{fmt(kpiData.totalPaid)}</div>
+          <div className="stat-label">Collected / Settled</div>
         </div>
 
-        <div className="billing-kpi-card">
-          <div className="kpi-icon-box amber"><Icon name="clock" size={22} color="#f59e0b" /></div>
-          <div className="kpi-content">
-            <span className="kpi-label">Receivables Outstanding</span>
-            <span className="kpi-value">{fmt(kpiData.totalDue)}</span>
-          </div>
+        <div
+          className={`stat-card warning ${activeTab === 'invoices' ? 'highlight' : ''}`}
+          onClick={() => handleTabChange('invoices')}
+        >
+          <div className="stat-value">{fmt(kpiData.totalDue)}</div>
+          <div className="stat-label">Receivables Outstanding</div>
         </div>
 
-        <div className="billing-kpi-card">
-          <div className="kpi-icon-box rose"><Icon name="alert-triangle" size={22} color="#ef4444" /></div>
-          <div className="kpi-content">
-            <span className="kpi-label">Overdue Invoices</span>
-            <span className="kpi-value">{kpiData.overdueCount}</span>
-          </div>
+        <div
+          className={`stat-card ${kpiData.overdueCount > 0 ? 'alert' : ''} ${activeTab === 'invoices' ? 'highlight' : ''}`}
+          onClick={() => handleTabChange('invoices')}
+        >
+          <div className="stat-value">{kpiData.overdueCount}</div>
+          <div className="stat-label">Overdue Invoices</div>
         </div>
 
-        <div className="billing-kpi-card">
-          <div className="kpi-icon-box cyan"><Icon name="refresh" size={22} color="#06b6d4" /></div>
-          <div className="kpi-content">
-            <span className="kpi-label">Active Subscriptions</span>
-            <span className="kpi-value">{kpiData.activeSubs}</span>
-          </div>
+        <div
+          className={`stat-card ${activeTab === 'subscriptions' ? 'highlight' : ''}`}
+          onClick={() => handleTabChange('subscriptions')}
+        >
+          <div className="stat-value">{kpiData.activeSubs}</div>
+          <div className="stat-label">Active Subscriptions</div>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="billing-tabs-nav">
-        <button
-          type="button"
-          className={`billing-tab-btn ${activeTab === 'invoices' ? 'active' : ''}`}
-          onClick={() => handleTabChange('invoices')}
-        >
-          <Icon name="document" size={16} style={{ marginRight: '6px' }} /> Invoices & Receivables
-          <span className="tab-badge-count">{invoices.length}</span>
-        </button>
+      {/* Toolbar: Tabs & Search */}
+      <div className="tabs-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="tabs">
+          <button
+            type="button"
+            className={`tab ${activeTab === 'invoices' ? 'active' : ''}`}
+            onClick={() => handleTabChange('invoices')}
+          >
+            Invoices & Receivables ({invoices.length})
+          </button>
+          <button
+            type="button"
+            className={`tab ${activeTab === 'orders' ? 'active' : ''}`}
+            onClick={() => handleTabChange('orders')}
+          >
+            Commercial Orders ({orders.length})
+          </button>
+          <button
+            type="button"
+            className={`tab ${activeTab === 'subscriptions' ? 'active' : ''}`}
+            onClick={() => handleTabChange('subscriptions')}
+          >
+            Subscriptions ({subscriptions.length})
+          </button>
+          <button
+            type="button"
+            className={`tab ${activeTab === 'plans' ? 'active' : ''}`}
+            onClick={() => handleTabChange('plans')}
+          >
+            Plans Catalog ({plans.length})
+          </button>
+        </div>
 
-        <button
-          type="button"
-          className={`billing-tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
-          onClick={() => handleTabChange('orders')}
-        >
-          <Icon name="package" size={16} style={{ marginRight: '6px' }} /> Commercial Orders
-          <span className="tab-badge-count">{orders.length}</span>
-        </button>
-
-        <button
-          type="button"
-          className={`billing-tab-btn ${activeTab === 'subscriptions' ? 'active' : ''}`}
-          onClick={() => handleTabChange('subscriptions')}
-        >
-          <Icon name="refresh" size={16} style={{ marginRight: '6px' }} /> Subscriptions & Recurring
-          <span className="tab-badge-count">{subscriptions.length}</span>
-        </button>
-
-        <button
-          type="button"
-          className={`billing-tab-btn ${activeTab === 'plans' ? 'active' : ''}`}
-          onClick={() => handleTabChange('plans')}
-        >
-          <Icon name="file-text" size={16} style={{ marginRight: '6px' }} /> Subscription Plans
-          <span className="tab-badge-count">{plans.length}</span>
-        </button>
+        {activeTab === 'invoices' && (
+          <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              placeholder="Search invoice #, order, customer…"
+              className="input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ minWidth: '220px', padding: '0.5rem 0.85rem', fontSize: '0.88rem' }}
+            />
+            <select
+              className="input"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ padding: '0.5rem 0.75rem', fontSize: '0.88rem' }}
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="ISSUED">Issued</option>
+              <option value="PARTIALLY_PAID">Partially Paid</option>
+              <option value="PAID">Paid / Settled</option>
+              <option value="OVERDUE">Overdue</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+            <select
+              className="input"
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              style={{ padding: '0.5rem 0.75rem', fontSize: '0.88rem' }}
+            >
+              <option value="ALL">All Types</option>
+              <option value="ONE_TIME">One-Time Capex</option>
+              <option value="RECURRING">Recurring Cycle</option>
+            </select>
+          </div>
+        )}
       </div>
 
       {/* TAB 1: Invoices & Receivables */}
       {activeTab === 'invoices' && (
-        <div className="billing-table-card">
-          <div className="table-toolbar">
-            <div className="toolbar-filters">
-              <input
-                type="text"
-                placeholder="Search by invoice #, order ID, customer..."
-                className="table-search-input"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ width: '280px' }}
-              />
-
-              <select
-                className="table-select"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="ISSUED">Issued</option>
-                <option value="PARTIALLY_PAID">Partially Paid</option>
-                <option value="PAID">Paid / Settled</option>
-                <option value="OVERDUE">Overdue</option>
-                <option value="CANCELLED">Cancelled</option>
-              </select>
-
-              <select
-                className="table-select"
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-              >
-                <option value="ALL">All Types</option>
-                <option value="ONE_TIME">One-Time Capex</option>
-                <option value="RECURRING">Recurring Cycle</option>
-              </select>
-            </div>
-
-            <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
-              Showing {filteredInvoices.length} of {invoices.length} invoices
-            </div>
-          </div>
-
-          {loading ? (
-            <div className="empty-state-box">
-              <div className="empty-state-icon"><Icon name="clock" size={32} color="#64748b" /></div>
-              <p>Loading invoice records...</p>
-            </div>
-          ) : filteredInvoices.length === 0 ? (
-            <div className="empty-state-box">
-              <div className="empty-state-icon"><Icon name="document" size={32} color="#64748b" /></div>
+        <div className="tab-pane">
+          {filteredInvoices.length === 0 ? (
+            <div className="empty-state">
               <h3>No Invoices Found</h3>
-              <p>Generate an invoice from a confirmed order or recurring subscription</p>
+              <p>Generate an invoice from a confirmed order or recurring subscription.</p>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setCreateInvoiceModalOpen(true)}
+              >
+                + Generate Invoice
+              </button>
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table className="billing-data-table">
+            <div className="quotations-table-wrapper">
+              <table className="data-table quotations-table">
                 <thead>
                   <tr>
                     <th>Invoice #</th>
                     <th>Type</th>
                     <th>Issued Date</th>
                     <th>Due Date</th>
-                    <th>Total Amount</th>
-                    <th>Amount Paid</th>
-                    <th>Outstanding Due</th>
+                    <th className="text-right">Total Amount</th>
+                    <th className="text-right">Amount Paid</th>
+                    <th className="text-right">Outstanding Due</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
@@ -484,17 +529,13 @@ export default function InvoiceListPage() {
                         <td>
                           <Link
                             to={`/invoices/${inv.id}`}
-                            style={{
-                              color: '#818cf8',
-                              fontWeight: 600,
-                              fontFamily: 'monospace',
-                              textDecoration: 'none',
-                            }}
+                            className="quote-link"
+                            style={{ fontWeight: 600, fontFamily: 'monospace' }}
                           >
                             {inv.invoice_number}
                           </Link>
                           {inv.order_id && (
-                            <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--muted, #6b7280)' }}>
                               Ord: {inv.order_id.slice(0, 8)}...
                             </div>
                           )}
@@ -504,7 +545,7 @@ export default function InvoiceListPage() {
                             style={{
                               fontSize: '0.75rem',
                               fontWeight: 600,
-                              color: inv.invoice_type === 'RECURRING' ? '#38bdf8' : '#cbd5e1',
+                              color: inv.invoice_type === 'RECURRING' ? '#1e40af' : '#4b5563',
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '4px',
@@ -522,7 +563,7 @@ export default function InvoiceListPage() {
                         </td>
                         <td>
                           {inv.due_date ? (
-                            <span style={{ color: isOverdue ? '#f87171' : 'inherit' }}>
+                            <span style={{ color: isOverdue ? '#dc2626' : 'inherit' }}>
                               {new Date(inv.due_date).toLocaleDateString()}
                               {isOverdue && (
                                 <span className="overdue-warning-tag">OVERDUE</span>
@@ -532,12 +573,13 @@ export default function InvoiceListPage() {
                             '—'
                           )}
                         </td>
-                        <td style={{ fontWeight: 600 }}>{fmt(inv.total_amount)}</td>
-                        <td style={{ color: '#34d399' }}>{fmt(inv.amount_paid)}</td>
+                        <td className="text-right" style={{ fontWeight: 600 }}>{fmt(inv.total_amount)}</td>
+                        <td className="text-right" style={{ color: '#166534', fontWeight: 600 }}>{fmt(inv.amount_paid)}</td>
                         <td
+                          className="text-right"
                           style={{
-                            fontWeight: 600,
-                            color: Number(inv.amount_due) > 0 ? '#f87171' : '#34d399',
+                            fontWeight: 700,
+                            color: Number(inv.amount_due) > 0 ? '#dc2626' : '#166534',
                           }}
                         >
                           {fmt(inv.amount_due)}
@@ -551,30 +593,30 @@ export default function InvoiceListPage() {
                           />
                         </td>
                         <td>
-                          <div className="action-buttons-cell">
+                          <div className="table-actions">
                             <Link
                               to={`/invoices/${inv.id}`}
-                              className="btn btn-secondary btn-sm"
+                              className="btn btn-sm btn-outline"
                             >
                               View
                             </Link>
 
-                            {Number(inv.amount_due) > 0 &&
+                            {/* {Number(inv.amount_due) > 0 &&
                               inv.status !== 'CANCELLED' &&
                               inv.status !== 'VOID' && (
                                 <button
                                   type="button"
-                                  className="btn btn-primary btn-sm"
+                                  className="btn btn-sm btn-primary"
                                   onClick={() => handleOpenPaymentModal(inv)}
                                 >
-                                  <Icon name="credit-card" size={14} style={{ marginRight: '4px' }} /> Pay
+                                  <Icon name="credit-card" size={13} style={{ marginRight: '4px' }} /> Pay
                                 </button>
-                              )}
+                              )} */}
 
                             {['DRAFT', 'ISSUED'].includes(inv.status) && (
                               <button
                                 type="button"
-                                className="btn btn-danger-ghost btn-sm"
+                                className="btn btn-sm btn-danger-ghost"
                                 onClick={() => handleCancelInvoice(inv.id)}
                               >
                                 Void
@@ -594,36 +636,29 @@ export default function InvoiceListPage() {
 
       {/* TAB 2: Commercial Orders */}
       {activeTab === 'orders' && (
-        <div className="billing-table-card">
-          <div className="table-toolbar">
-            <div style={{ fontWeight: 600, color: '#f8fafc' }}>
-              All Commercial Orders ({orders.length})
-            </div>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => setConvertModalOpen(true)}
-            >
-              <Icon name="document" size={14} style={{ marginRight: '4px' }} /> Convert Quote to Order
-            </button>
-          </div>
-
+        <div className="tab-pane">
           {orders.length === 0 ? (
-            <div className="empty-state-box">
-              <div className="empty-state-icon"><Icon name="package" size={32} color="#64748b" /></div>
+            <div className="empty-state">
               <h3>No Commercial Orders</h3>
-              <p>Convert an approved quotation to create an order</p>
+              <p>Convert an approved quotation to create a commercial order.</p>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setConvertModalOpen(true)}
+              >
+                + Convert Quote to Order
+              </button>
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table className="billing-data-table">
+            <div className="quotations-table-wrapper">
+              <table className="data-table quotations-table">
                 <thead>
                   <tr>
                     <th>Order #</th>
                     <th>Quotation Ref</th>
                     <th>Status</th>
-                    <th>Lines</th>
-                    <th>Total Value</th>
+                    <th>Line Items</th>
+                    <th className="text-right">Total Value</th>
                     <th>Created Date</th>
                     <th>Actions</th>
                   </tr>
@@ -639,8 +674,8 @@ export default function InvoiceListPage() {
                       <td>
                         <Link
                           to={`/quotations/${ord.quotation_id}`}
+                          className="quote-link"
                           style={{
-                            color: '#818cf8',
                             fontFamily: 'monospace',
                             fontSize: '0.82rem',
                           }}
@@ -651,21 +686,21 @@ export default function InvoiceListPage() {
                       <td>
                         <span className="billing-status-pill badge-paid">{ord.status}</span>
                       </td>
-                      <td>{ord.lines?.length || 0} line items</td>
-                      <td style={{ fontWeight: 700, color: '#f8fafc' }}>
+                      <td>{ord.lines?.length || 0} items</td>
+                      <td className="text-right" style={{ fontWeight: 700 }}>
                         {fmt(ord.total_amount)}
                       </td>
                       <td style={{ fontSize: '0.85rem' }}>
                         {new Date(ord.created_at).toLocaleDateString()}
                       </td>
                       <td>
-                        <div className="action-buttons-cell">
+                        <div className="table-actions">
                           <button
                             type="button"
-                            className="btn btn-primary btn-sm"
+                            className="btn btn-sm btn-primary"
                             onClick={() => handleCreateOrderInvoice(ord.id)}
                           >
-                            <Icon name="zap" size={14} style={{ marginRight: '4px' }} /> Generate Invoice
+                            <Icon name="zap" size={13} style={{ marginRight: '4px' }} /> Generate Invoice
                           </button>
                         </div>
                       </td>
@@ -680,35 +715,28 @@ export default function InvoiceListPage() {
 
       {/* TAB 3: Subscriptions & Recurring Billing */}
       {activeTab === 'subscriptions' && (
-        <div className="billing-table-card">
-          <div className="table-toolbar">
-            <div style={{ fontWeight: 600, color: '#f8fafc' }}>
-              Recurring Subscriptions ({subscriptions.length})
-            </div>
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={() => handleTabChange('plans')}
-            >
-              Manage Plans
-            </button>
-          </div>
-
+        <div className="tab-pane">
           {subscriptions.length === 0 ? (
-            <div className="empty-state-box">
-              <div className="empty-state-icon"><Icon name="refresh" size={32} color="#64748b" /></div>
+            <div className="empty-state">
               <h3>No Active Subscriptions</h3>
-              <p>Subscriptions are automatically spun up from recurring order lines</p>
+              <p>Subscriptions are automatically spun up from recurring order lines.</p>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => handleTabChange('plans')}
+              >
+                Manage Plans
+              </button>
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table className="billing-data-table">
+            <div className="quotations-table-wrapper">
+              <table className="data-table quotations-table">
                 <thead>
                   <tr>
                     <th>Plan</th>
                     <th>Customer</th>
                     <th>Status</th>
-                    <th>Rate</th>
+                    <th className="text-right">Rate</th>
                     <th>Current Period</th>
                     <th>Next Billing Date</th>
                     <th>Actions</th>
@@ -717,9 +745,9 @@ export default function InvoiceListPage() {
                 <tbody>
                   {subscriptions.map((sub) => (
                     <tr key={sub.id}>
-                      <td style={{ fontWeight: 600, color: '#f8fafc' }}>
-                        {sub.plan ? sub.plan.name : 'Custom Subscription'}
-                        <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                      <td>
+                        <strong>{sub.plan ? sub.plan.name : 'Custom Subscription'}</strong>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--muted, #6b7280)' }}>
                           Cycle: {sub.plan?.interval || 'MONTHLY'}
                         </div>
                       </td>
@@ -735,28 +763,28 @@ export default function InvoiceListPage() {
                           {sub.status}
                         </span>
                       </td>
-                      <td style={{ fontWeight: 600 }}>{fmt(sub.unit_price)}</td>
+                      <td className="text-right" style={{ fontWeight: 600 }}>{fmt(sub.unit_price)}</td>
                       <td style={{ fontSize: '0.85rem' }}>
                         {sub.current_period_start} → {sub.current_period_end}
                       </td>
-                      <td style={{ fontWeight: 600, color: '#818cf8' }}>
+                      <td style={{ fontWeight: 600, color: '#1e40af' }}>
                         {sub.next_billing_date || '—'}
                       </td>
                       <td>
-                        <div className="action-buttons-cell">
+                        <div className="table-actions">
                           {sub.status === 'ACTIVE' && (
                             <>
                               <button
                                 type="button"
-                                className="btn btn-primary btn-sm"
+                                className="btn btn-sm btn-primary"
                                 onClick={() => handleGenerateSubscriptionInvoice(sub.id)}
                                 title="Generate invoice for next billing cycle"
                               >
-                                <Icon name="zap" size={14} style={{ marginRight: '4px' }} /> Bill Cycle
+                                <Icon name="zap" size={13} style={{ marginRight: '4px' }} /> Bill Cycle
                               </button>
                               <button
                                 type="button"
-                                className="btn btn-danger-ghost btn-sm"
+                                className="btn btn-sm btn-danger-ghost"
                                 onClick={() => handleCancelSubscription(sub.id)}
                               >
                                 Cancel
@@ -776,34 +804,27 @@ export default function InvoiceListPage() {
 
       {/* TAB 4: Subscription Plans */}
       {activeTab === 'plans' && (
-        <div className="billing-table-card">
-          <div className="table-toolbar">
-            <div style={{ fontWeight: 600, color: '#f8fafc' }}>
-              Subscription Plans Catalog ({plans.length})
-            </div>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => setPlanModalOpen(true)}
-            >
-              <Icon name="plus" size={14} style={{ marginRight: '4px' }} /> Create Plan
-            </button>
-          </div>
-
+        <div className="tab-pane">
           {plans.length === 0 ? (
-            <div className="empty-state-box">
-              <div className="empty-state-icon"><Icon name="file-text" size={32} color="#64748b" /></div>
+            <div className="empty-state">
               <h3>No Plans Configured</h3>
-              <p>Create subscription plans for recurring SaaS, maintenance, or SLAs</p>
+              <p>Create subscription plans for recurring SaaS, maintenance, or SLAs.</p>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setPlanModalOpen(true)}
+              >
+                + Create Plan
+              </button>
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table className="billing-data-table">
+            <div className="quotations-table-wrapper">
+              <table className="data-table quotations-table">
                 <thead>
                   <tr>
                     <th>Plan Name</th>
                     <th>Interval</th>
-                    <th>Price</th>
+                    <th className="text-right">Price</th>
                     <th>Proration</th>
                     <th>Cancellation Policy</th>
                     <th>Status</th>
@@ -812,19 +833,19 @@ export default function InvoiceListPage() {
                 <tbody>
                   {plans.map((p) => (
                     <tr key={p.id}>
-                      <td style={{ fontWeight: 600, color: '#f8fafc' }}>{p.name}</td>
+                      <td style={{ fontWeight: 600 }}>{p.name}</td>
                       <td>
                         <span className="schedule-pill schedule-invoiced">{p.interval}</span>
                       </td>
-                      <td style={{ fontWeight: 700, color: '#34d399' }}>{fmt(p.price)}</td>
+                      <td className="text-right" style={{ fontWeight: 700, color: '#166534' }}>{fmt(p.price)}</td>
                       <td>
                         {p.proration_enabled ? (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#10b981' }}>
-                            <Icon name="check" size={14} color="#10b981" /> Prorated
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#166534' }}>
+                            <Icon name="check" size={14} color="#166534" /> Prorated
                           </span>
                         ) : (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#94a3b8' }}>
-                            <Icon name="x" size={14} color="#94a3b8" /> No Proration
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--muted, #6b7280)' }}>
+                            <Icon name="x" size={14} color="#6b7280" /> No Proration
                           </span>
                         )}
                       </td>
@@ -862,10 +883,12 @@ export default function InvoiceListPage() {
               <div className="modal-body">
                 <div
                   style={{
-                    background: 'rgba(15, 23, 42, 0.6)',
+                    background: '#faf8f2',
+                    border: '1px solid var(--line, #e5e7eb)',
                     padding: '0.85rem',
                     borderRadius: '8px',
                     fontSize: '0.85rem',
+                    color: 'var(--ink, #1f2937)',
                   }}
                 >
                   <div>
@@ -877,7 +900,7 @@ export default function InvoiceListPage() {
                   <div>
                     <strong>Already Paid:</strong> {fmt(selectedInvoice.amount_paid)}
                   </div>
-                  <div style={{ color: '#f87171', fontWeight: 600 }}>
+                  <div style={{ color: '#dc2626', fontWeight: 600 }}>
                     <strong>Balance Due:</strong> {fmt(selectedInvoice.amount_due)}
                   </div>
                 </div>
@@ -937,7 +960,7 @@ export default function InvoiceListPage() {
               <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-outline"
                   onClick={() => setPaymentModalOpen(false)}
                 >
                   Cancel
@@ -968,7 +991,7 @@ export default function InvoiceListPage() {
             </div>
             <form onSubmit={handleConvertQuote}>
               <div className="modal-body">
-                <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: 0 }}>
+                <p style={{ color: 'var(--muted, #6b7280)', fontSize: '0.9rem', margin: 0 }}>
                   Enter an approved quotation ID. The billing engine will automatically convert all
                   commercial items, map recurring lines to subscription tiers, and create the order.
                 </p>
@@ -989,7 +1012,7 @@ export default function InvoiceListPage() {
               <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-outline"
                   onClick={() => setConvertModalOpen(false)}
                 >
                   Cancel
@@ -1019,7 +1042,7 @@ export default function InvoiceListPage() {
               </button>
             </div>
             <div className="modal-body">
-              <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: 0 }}>
+              <p style={{ color: 'var(--muted, #6b7280)', fontSize: '0.9rem', margin: 0 }}>
                 Select an existing commercial order to generate a formal invoice with tax & discount breakdowns.
               </p>
 
@@ -1043,7 +1066,7 @@ export default function InvoiceListPage() {
             <div className="modal-footer">
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-outline"
                 onClick={() => setCreateInvoiceModalOpen(false)}
               >
                 Cancel
@@ -1140,7 +1163,7 @@ export default function InvoiceListPage() {
               <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-outline"
                   onClick={() => setPlanModalOpen(false)}
                 >
                   Cancel
@@ -1151,20 +1174,6 @@ export default function InvoiceListPage() {
               </div>
             </form>
           </div>
-        </div>
-      )}
-
-      {/* Toast */}
-      {toast && (
-        <div className={`billing-toast ${toast.type}`}>
-          <span>
-            {toast.type === 'success' ? (
-              <Icon name="check-circle" size={18} color="#10b981" />
-            ) : (
-              <Icon name="alert-triangle" size={18} color="#f59e0b" />
-            )}
-          </span>
-          <span>{toast.message}</span>
         </div>
       )}
     </div>
