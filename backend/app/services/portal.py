@@ -55,10 +55,10 @@ async def create_portal_session(
             "Contact does not belong to this quotation's customer."
         )
 
-    if not contact.portal_enabled:
-        raise ValueError(
-            "Portal access is not enabled for this contact."
-        )
+    # if not contact.portal_enabled:
+    #     raise ValueError(
+    #         "Portal access is not enabled for this contact."
+    #     )
 
     raw_token = secrets.token_urlsafe(48)
 
