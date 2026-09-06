@@ -1,16 +1,110 @@
-export default function SketchHighlight({ children, className = '' }) {
+import { useEffect, useState } from 'react';
+
+export default function SketchHighlight({
+  children,
+  className = '',
+  speed = 1.25, // Animation duration in seconds
+  delay = 0,    // Start delay in seconds
+}) {
+  const [isDrawn, setIsDrawn] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsDrawn(true);
+    }, delay * 1000);
+
+    return () => clearTimeout(timer);
+  }, [delay]);
+
   return (
-    <span className={`sketch-highlight ${className}`.trim()}>
-      <span className="sketch-highlight-text">{children}</span>
-      <svg className="sketch-circle" viewBox="0 0 220 64" fill="none" aria-hidden="true">
+    <span
+      className={`relative inline-block ${className}`}
+      style={{ isolation: 'isolate' }}
+    >
+      <span className="relative z-10">{children}</span>
+
+      <svg
+        className="pointer-events-none absolute -inset-[0.28em] z-0 h-[calc(100%+0.56em)] w-[calc(100%+0.56em)] overflow-visible"
+        viewBox="0 0 300 100"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        {/* Main hand-drawn circle */}
         <path
-          d="M18 34c8-16 48-24 96-24 54-1 92 10 99 26 6 14-18 22-62 26-42 4-96 1-118-12-10-6-8-18 6-22 18-5 62-8 108-4"
-          stroke="#E6C229"
-          strokeWidth="3.2"
+          className={`sketch-highlight-stroke ${
+            isDrawn ? 'is-drawn' : ''
+          }`}
+          pathLength="1"
+          d="
+            M 150 7
+            C 205 7, 274 18, 291 46
+            C 308 73, 251 94, 151 95
+            C 54 96, -2 75, 9 48
+            C 20 20, 85 7, 150 7
+          "
+          fill="none"
+          stroke="#eab308"
+          strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"
+          opacity="0.9"
+        />
+
+        {/* Slight secondary sketch stroke */}
+        <path
+          className={`sketch-highlight-stroke sketch-highlight-secondary ${
+            isDrawn ? 'is-drawn' : ''
+          }`}
+          pathLength="1"
+          d="
+            M 147 11
+            C 201 10, 265 21, 285 47
+            C 300 69, 246 89, 151 91
+            C 62 93, 8 72, 18 48
+            C 29 25, 88 11, 147 11
+          "
+          fill="none"
+          stroke="#facc15"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.38"
+          style={{
+            animationDelay: isDrawn ? `${Math.min(speed * 1000, 120)}ms` : '0ms',
+          }}
         />
       </svg>
+
+      <style>{`
+        @keyframes sketchHighlightDraw {
+          from {
+            stroke-dashoffset: 1;
+          }
+
+          to {
+            stroke-dashoffset: 0;
+          }
+        }
+
+        .sketch-highlight-stroke {
+          stroke-dasharray: 1;
+          stroke-dashoffset: 1;
+        }
+
+        .sketch-highlight-stroke.is-drawn {
+          animation:
+            sketchHighlightDraw ${speed}s
+            cubic-bezier(0.22, 1, 0.36, 1)
+            forwards;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .sketch-highlight-stroke {
+            stroke-dashoffset: 0;
+            animation: none !important;
+          }
+        }
+      `}</style>
     </span>
   );
 }

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PaymentStatus from './PaymentStatus';
+import Icon from '../../../components/ui/Icon';
+import { formatCurrency } from '../../../utils/currency';
 
 export default function InvoiceSummary({
   invoice,
@@ -11,11 +13,7 @@ export default function InvoiceSummary({
   if (!invoice) return null;
 
   const fmt = (val) =>
-    new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: invoice.currency || 'INR',
-      maximumFractionDigits: 2,
-    }).format(Number(val) || 0);
+    formatCurrency(val, invoice.currency);
 
   const isOverdue =
     invoice.status !== 'PAID' &&
@@ -27,8 +25,16 @@ export default function InvoiceSummary({
     <div className={`invoice-summary-card ${compact ? 'compact' : ''}`}>
       <div className="invoice-summary-header">
         <div className="invoice-id-group">
-          <div className="invoice-type-tag">
-            {invoice.invoice_type === 'RECURRING' ? '🔄 Recurring Cycle' : '⚡ One-Time Order'}
+          <div className="invoice-type-tag" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            {invoice.invoice_type === 'RECURRING' ? (
+              <>
+                <Icon name="refresh" size={12} /> Recurring Cycle
+              </>
+            ) : (
+              <>
+                <Icon name="package" size={12} /> One-Time Order
+              </>
+            )}
           </div>
           <h4 className="invoice-number">
             <Link to={`/invoices/${invoice.id}`}>{invoice.invoice_number}</Link>
@@ -79,7 +85,8 @@ export default function InvoiceSummary({
 
       <div className="invoice-summary-actions">
         <Link to={`/invoices/${invoice.id}`} className="btn btn-secondary btn-sm">
-          🔍 View Full Invoice
+          <Icon name="search" size={13} style={{ marginRight: '4px' }} />
+          View Full Invoice
         </Link>
         {Number(invoice.amount_due) > 0 && invoice.status !== 'CANCELLED' && onRecordPayment && (
           <button
@@ -87,7 +94,8 @@ export default function InvoiceSummary({
             className="btn btn-primary btn-sm"
             onClick={() => onRecordPayment(invoice)}
           >
-            💳 Record Payment
+            <Icon name="credit-card" size={13} style={{ marginRight: '4px' }} />
+            Record Payment
           </button>
         )}
         {['DRAFT', 'ISSUED'].includes(invoice.status) && onCancelInvoice && (

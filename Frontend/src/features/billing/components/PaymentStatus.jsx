@@ -1,4 +1,6 @@
 import React from 'react';
+import Icon from '../../../components/ui/Icon';
+import { formatCurrency as formatRupees } from '../../../utils/currency';
 
 export default function PaymentStatus({
   status,
@@ -38,11 +40,7 @@ export default function PaymentStatus({
   };
 
   const formatCurrency = (val) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency || 'INR',
-      maximumFractionDigits: 2,
-    }).format(val || 0);
+    return formatRupees(val, currency);
   };
 
   return (
@@ -71,7 +69,8 @@ export default function PaymentStatus({
         <div className="payment-meta-row">
           {paymentMethod && (
             <span className="payment-method-chip" title="Payment Method">
-              💳 {paymentMethod.replace('_', ' ')}
+              <Icon name="credit-card" size={13} style={{ marginRight: '4px' }} />
+              {paymentMethod.replace('_', ' ')}
             </span>
           )}
           {paymentReference && (
@@ -81,7 +80,8 @@ export default function PaymentStatus({
           )}
           {paidAt && (
             <span className="payment-date-chip" title="Recorded Date">
-              📅 {new Date(paidAt).toLocaleDateString()}
+              <Icon name="calendar" size={13} style={{ marginRight: '4px' }} />
+              {new Date(paidAt).toLocaleDateString()}
             </span>
           )}
         </div>

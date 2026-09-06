@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatCurrency } from '../../../utils/currency';
 
 export default function ShipmentSummary({ plan, allocations = [] }) {
   if (!plan) return null;
@@ -30,7 +31,7 @@ export default function ShipmentSummary({ plan, allocations = [] }) {
         <div className="summary-metric">
           <span className="metric-label">Estimated Freight Cost</span>
           <strong className="metric-value freight-highlight">
-            ${Number(plan.estimated_shipping_cost || 0).toFixed(2)}
+            {formatCurrency(plan.estimated_shipping_cost)}
           </strong>
         </div>
 

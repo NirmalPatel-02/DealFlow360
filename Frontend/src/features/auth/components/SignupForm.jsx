@@ -84,7 +84,7 @@ export default function SignupForm() {
         onChange={handleChange}
         error={errors.password}
         autoComplete="new-password"
-        placeholder="At least 12 characters"
+        placeholder="At least 8 characters"
       />
       <Field
         label="Confirm password"

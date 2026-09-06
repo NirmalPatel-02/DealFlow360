@@ -14,6 +14,8 @@ import {
   createSubscriptionPlan,
 } from '../billing.api';
 import PaymentStatus from '../components/PaymentStatus';
+import Icon from '../../../components/ui/Icon';
+import { formatCurrency } from '../../../utils/currency';
 import '../BillingStyles.css';
 
 export default function InvoiceListPage() {
@@ -134,12 +136,7 @@ export default function InvoiceListPage() {
     };
   }, [invoices, subscriptions]);
 
-  const fmt = (val) =>
-    new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 2,
-    }).format(Number(val) || 0);
+  const fmt = (val) => formatCurrency(val);
 
   // Filtered Invoices
   const filteredInvoices = useMemo(() => {
@@ -303,21 +300,21 @@ export default function InvoiceListPage() {
             className="btn btn-secondary"
             onClick={() => setConvertModalOpen(true)}
           >
-            📋 Convert Approved Quote
+            <Icon name="document" size={15} style={{ marginRight: '6px' }} /> Convert Approved Quote
           </button>
           <button
             type="button"
             className="btn btn-primary"
             onClick={() => setCreateInvoiceModalOpen(true)}
           >
-            ⚡ Generate Invoice
+            <Icon name="zap" size={15} style={{ marginRight: '6px' }} /> Generate Invoice
           </button>
           <button
             type="button"
             className="btn btn-secondary"
             onClick={() => setPlanModalOpen(true)}
           >
-            ➕ New Subscription Plan
+            <Icon name="plus" size={15} style={{ marginRight: '6px' }} /> New Subscription Plan
           </button>
         </div>
       </div>
@@ -325,7 +322,7 @@ export default function InvoiceListPage() {
       {/* KPI Banner */}
       <div className="billing-kpi-grid">
         <div className="billing-kpi-card">
-          <div className="kpi-icon-box indigo">📄</div>
+          <div className="kpi-icon-box indigo"><Icon name="document" size={22} color="#6366f1" /></div>
           <div className="kpi-content">
             <span className="kpi-label">Total Invoiced</span>
             <span className="kpi-value">{fmt(kpiData.totalInvoiced)}</span>
@@ -333,7 +330,7 @@ export default function InvoiceListPage() {
         </div>
 
         <div className="billing-kpi-card">
-          <div className="kpi-icon-box emerald">💰</div>
+          <div className="kpi-icon-box emerald"><Icon name="cash" size={22} color="#10b981" /></div>
           <div className="kpi-content">
             <span className="kpi-label">Collected / Settled</span>
             <span className="kpi-value">{fmt(kpiData.totalPaid)}</span>
@@ -341,7 +338,7 @@ export default function InvoiceListPage() {
         </div>
 
         <div className="billing-kpi-card">
-          <div className="kpi-icon-box amber">⏳</div>
+          <div className="kpi-icon-box amber"><Icon name="clock" size={22} color="#f59e0b" /></div>
           <div className="kpi-content">
             <span className="kpi-label">Receivables Outstanding</span>
             <span className="kpi-value">{fmt(kpiData.totalDue)}</span>
@@ -349,7 +346,7 @@ export default function InvoiceListPage() {
         </div>
 
         <div className="billing-kpi-card">
-          <div className="kpi-icon-box rose">🚨</div>
+          <div className="kpi-icon-box rose"><Icon name="alert-triangle" size={22} color="#ef4444" /></div>
           <div className="kpi-content">
             <span className="kpi-label">Overdue Invoices</span>
             <span className="kpi-value">{kpiData.overdueCount}</span>
@@ -357,7 +354,7 @@ export default function InvoiceListPage() {
         </div>
 
         <div className="billing-kpi-card">
-          <div className="kpi-icon-box cyan">🔄</div>
+          <div className="kpi-icon-box cyan"><Icon name="refresh" size={22} color="#06b6d4" /></div>
           <div className="kpi-content">
             <span className="kpi-label">Active Subscriptions</span>
             <span className="kpi-value">{kpiData.activeSubs}</span>
@@ -372,7 +369,7 @@ export default function InvoiceListPage() {
           className={`billing-tab-btn ${activeTab === 'invoices' ? 'active' : ''}`}
           onClick={() => handleTabChange('invoices')}
         >
-          📄 Invoices & Receivables
+          <Icon name="document" size={16} style={{ marginRight: '6px' }} /> Invoices & Receivables
           <span className="tab-badge-count">{invoices.length}</span>
         </button>
 
@@ -381,7 +378,7 @@ export default function InvoiceListPage() {
           className={`billing-tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
           onClick={() => handleTabChange('orders')}
         >
-          📦 Commercial Orders
+          <Icon name="package" size={16} style={{ marginRight: '6px' }} /> Commercial Orders
           <span className="tab-badge-count">{orders.length}</span>
         </button>
 
@@ -390,7 +387,7 @@ export default function InvoiceListPage() {
           className={`billing-tab-btn ${activeTab === 'subscriptions' ? 'active' : ''}`}
           onClick={() => handleTabChange('subscriptions')}
         >
-          🔄 Subscriptions & Recurring
+          <Icon name="refresh" size={16} style={{ marginRight: '6px' }} /> Subscriptions & Recurring
           <span className="tab-badge-count">{subscriptions.length}</span>
         </button>
 
@@ -399,7 +396,7 @@ export default function InvoiceListPage() {
           className={`billing-tab-btn ${activeTab === 'plans' ? 'active' : ''}`}
           onClick={() => handleTabChange('plans')}
         >
-          📑 Subscription Plans
+          <Icon name="file-text" size={16} style={{ marginRight: '6px' }} /> Subscription Plans
           <span className="tab-badge-count">{plans.length}</span>
         </button>
       </div>
@@ -449,12 +446,12 @@ export default function InvoiceListPage() {
 
           {loading ? (
             <div className="empty-state-box">
-              <div className="empty-state-icon">⏳</div>
+              <div className="empty-state-icon"><Icon name="clock" size={32} color="#64748b" /></div>
               <p>Loading invoice records...</p>
             </div>
           ) : filteredInvoices.length === 0 ? (
             <div className="empty-state-box">
-              <div className="empty-state-icon">📄</div>
+              <div className="empty-state-icon"><Icon name="document" size={32} color="#64748b" /></div>
               <h3>No Invoices Found</h3>
               <p>Generate an invoice from a confirmed order or recurring subscription</p>
             </div>
@@ -508,9 +505,16 @@ export default function InvoiceListPage() {
                               fontSize: '0.75rem',
                               fontWeight: 600,
                               color: inv.invoice_type === 'RECURRING' ? '#38bdf8' : '#cbd5e1',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
                             }}
                           >
-                            {inv.invoice_type === 'RECURRING' ? '🔄 Recurring' : '⚡ One-Time'}
+                            {inv.invoice_type === 'RECURRING' ? (
+                              <><Icon name="refresh" size={13} /> Recurring</>
+                            ) : (
+                              <><Icon name="zap" size={13} /> One-Time</>
+                            )}
                           </span>
                         </td>
                         <td>
@@ -563,7 +567,7 @@ export default function InvoiceListPage() {
                                   className="btn btn-primary btn-sm"
                                   onClick={() => handleOpenPaymentModal(inv)}
                                 >
-                                  💳 Pay
+                                  <Icon name="credit-card" size={14} style={{ marginRight: '4px' }} /> Pay
                                 </button>
                               )}
 
@@ -600,13 +604,13 @@ export default function InvoiceListPage() {
               className="btn btn-primary btn-sm"
               onClick={() => setConvertModalOpen(true)}
             >
-              📋 Convert Quote to Order
+              <Icon name="document" size={14} style={{ marginRight: '4px' }} /> Convert Quote to Order
             </button>
           </div>
 
           {orders.length === 0 ? (
             <div className="empty-state-box">
-              <div className="empty-state-icon">📦</div>
+              <div className="empty-state-icon"><Icon name="package" size={32} color="#64748b" /></div>
               <h3>No Commercial Orders</h3>
               <p>Convert an approved quotation to create an order</p>
             </div>
@@ -618,41 +622,41 @@ export default function InvoiceListPage() {
                     <th>Order #</th>
                     <th>Quotation Ref</th>
                     <th>Status</th>
-                    <th>Items</th>
+                    <th>Lines</th>
                     <th>Total Value</th>
-                    <th>Confirmed At</th>
+                    <th>Created Date</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {orders.map((ord) => (
                     <tr key={ord.id}>
-                      <td style={{ fontFamily: 'monospace', fontWeight: 600, color: '#818cf8' }}>
-                        {ord.order_number}
+                      <td>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>
+                          {ord.order_number}
+                        </span>
                       </td>
                       <td>
-                        {ord.quotation_id ? (
-                          <Link
-                            to={`/quotations/${ord.quotation_id}`}
-                            style={{ color: '#cbd5e1', fontSize: '0.85rem' }}
-                          >
-                            Quote: {ord.quotation_id.slice(0, 8)}...
-                          </Link>
-                        ) : (
-                          'Manual Order'
-                        )}
+                        <Link
+                          to={`/quotations/${ord.quotation_id}`}
+                          style={{
+                            color: '#818cf8',
+                            fontFamily: 'monospace',
+                            fontSize: '0.82rem',
+                          }}
+                        >
+                          {ord.quotation_id.slice(0, 8)}...
+                        </Link>
                       </td>
                       <td>
                         <span className="billing-status-pill badge-paid">{ord.status}</span>
                       </td>
-                      <td>{ord.items ? ord.items.length : '—'} line items</td>
-                      <td style={{ fontWeight: 600 }}>{fmt(ord.total_amount)}</td>
-                      <td>
-                        {ord.confirmed_at
-                          ? new Date(ord.confirmed_at).toLocaleDateString()
-                          : ord.created_at
-                          ? new Date(ord.created_at).toLocaleDateString()
-                          : '—'}
+                      <td>{ord.lines?.length || 0} line items</td>
+                      <td style={{ fontWeight: 700, color: '#f8fafc' }}>
+                        {fmt(ord.total_amount)}
+                      </td>
+                      <td style={{ fontSize: '0.85rem' }}>
+                        {new Date(ord.created_at).toLocaleDateString()}
                       </td>
                       <td>
                         <div className="action-buttons-cell">
@@ -661,7 +665,7 @@ export default function InvoiceListPage() {
                             className="btn btn-primary btn-sm"
                             onClick={() => handleCreateOrderInvoice(ord.id)}
                           >
-                            ⚡ Generate Invoice
+                            <Icon name="zap" size={14} style={{ marginRight: '4px' }} /> Generate Invoice
                           </button>
                         </div>
                       </td>
@@ -692,7 +696,7 @@ export default function InvoiceListPage() {
 
           {subscriptions.length === 0 ? (
             <div className="empty-state-box">
-              <div className="empty-state-icon">🔄</div>
+              <div className="empty-state-icon"><Icon name="refresh" size={32} color="#64748b" /></div>
               <h3>No Active Subscriptions</h3>
               <p>Subscriptions are automatically spun up from recurring order lines</p>
             </div>
@@ -748,7 +752,7 @@ export default function InvoiceListPage() {
                                 onClick={() => handleGenerateSubscriptionInvoice(sub.id)}
                                 title="Generate invoice for next billing cycle"
                               >
-                                ⚡ Bill Cycle
+                                <Icon name="zap" size={14} style={{ marginRight: '4px' }} /> Bill Cycle
                               </button>
                               <button
                                 type="button"
@@ -782,13 +786,13 @@ export default function InvoiceListPage() {
               className="btn btn-primary btn-sm"
               onClick={() => setPlanModalOpen(true)}
             >
-              ➕ Create Plan
+              <Icon name="plus" size={14} style={{ marginRight: '4px' }} /> Create Plan
             </button>
           </div>
 
           {plans.length === 0 ? (
             <div className="empty-state-box">
-              <div className="empty-state-icon">📑</div>
+              <div className="empty-state-icon"><Icon name="file-text" size={32} color="#64748b" /></div>
               <h3>No Plans Configured</h3>
               <p>Create subscription plans for recurring SaaS, maintenance, or SLAs</p>
             </div>
@@ -813,7 +817,17 @@ export default function InvoiceListPage() {
                         <span className="schedule-pill schedule-invoiced">{p.interval}</span>
                       </td>
                       <td style={{ fontWeight: 700, color: '#34d399' }}>{fmt(p.price)}</td>
-                      <td>{p.proration_enabled ? '✅ Prorated' : '❌ No Proration'}</td>
+                      <td>
+                        {p.proration_enabled ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#10b981' }}>
+                            <Icon name="check" size={14} color="#10b981" /> Prorated
+                          </span>
+                        ) : (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#94a3b8' }}>
+                            <Icon name="x" size={14} color="#94a3b8" /> No Proration
+                          </span>
+                        )}
+                      </td>
                       <td>{p.cancellation_policy}</td>
                       <td>
                         <span className="billing-status-pill badge-paid">
@@ -834,13 +848,14 @@ export default function InvoiceListPage() {
         <div className="billing-modal-backdrop">
           <div className="billing-modal-box">
             <div className="modal-header">
-              <h2>💳 Record Payment</h2>
+              <h2><Icon name="credit-card" size={20} style={{ marginRight: '8px' }} /> Record Payment</h2>
               <button
                 type="button"
                 className="modal-close-btn"
                 onClick={() => setPaymentModalOpen(false)}
+                aria-label="Close"
               >
-                ✕
+                <Icon name="x" size={18} />
               </button>
             </div>
             <form onSubmit={handleSubmitPayment}>
@@ -941,13 +956,14 @@ export default function InvoiceListPage() {
         <div className="billing-modal-backdrop">
           <div className="billing-modal-box">
             <div className="modal-header">
-              <h2>📋 Convert Approved Quotation to Order</h2>
+              <h2><Icon name="document" size={20} style={{ marginRight: '8px' }} /> Convert Approved Quotation to Order</h2>
               <button
                 type="button"
                 className="modal-close-btn"
                 onClick={() => setConvertModalOpen(false)}
+                aria-label="Close"
               >
-                ✕
+                <Icon name="x" size={18} />
               </button>
             </div>
             <form onSubmit={handleConvertQuote}>
@@ -992,13 +1008,14 @@ export default function InvoiceListPage() {
         <div className="billing-modal-backdrop">
           <div className="billing-modal-box">
             <div className="modal-header">
-              <h2>⚡ Generate One-Time Invoice</h2>
+              <h2><Icon name="zap" size={20} style={{ marginRight: '8px' }} /> Generate One-Time Invoice</h2>
               <button
                 type="button"
                 className="modal-close-btn"
                 onClick={() => setCreateInvoiceModalOpen(false)}
+                aria-label="Close"
               >
-                ✕
+                <Icon name="x" size={18} />
               </button>
             </div>
             <div className="modal-body">
@@ -1049,13 +1066,14 @@ export default function InvoiceListPage() {
         <div className="billing-modal-backdrop">
           <div className="billing-modal-box">
             <div className="modal-header">
-              <h2>➕ Create Subscription Plan</h2>
+              <h2><Icon name="plus" size={20} style={{ marginRight: '8px' }} /> Create Subscription Plan</h2>
               <button
                 type="button"
                 className="modal-close-btn"
                 onClick={() => setPlanModalOpen(false)}
+                aria-label="Close"
               >
-                ✕
+                <Icon name="x" size={18} />
               </button>
             </div>
             <form onSubmit={handleCreatePlan}>
@@ -1139,7 +1157,13 @@ export default function InvoiceListPage() {
       {/* Toast */}
       {toast && (
         <div className={`billing-toast ${toast.type}`}>
-          <span>{toast.type === 'success' ? '✅' : '⚠️'}</span>
+          <span>
+            {toast.type === 'success' ? (
+              <Icon name="check-circle" size={18} color="#10b981" />
+            ) : (
+              <Icon name="alert-triangle" size={18} color="#f59e0b" />
+            )}
+          </span>
           <span>{toast.message}</span>
         </div>
       )}

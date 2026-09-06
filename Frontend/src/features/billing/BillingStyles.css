@@ -206,11 +206,19 @@
 }
 
 @keyframes pulse-overdue {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
 }
 
-.badge-cancelled, .badge-void {
+.badge-cancelled,
+.badge-void {
   background: rgba(148, 163, 184, 0.15);
   color: #94a3b8;
   border: 1px solid rgba(148, 163, 184, 0.3);
@@ -281,7 +289,9 @@
   margin-top: 0.2rem;
 }
 
-.payment-method-chip, .payment-ref-chip, .payment-date-chip {
+.payment-method-chip,
+.payment-ref-chip,
+.payment-date-chip {
   background: rgba(255, 255, 255, 0.05);
   padding: 0.15rem 0.45rem;
   border-radius: 4px;
@@ -561,7 +571,8 @@
   align-items: center;
 }
 
-.table-search-input, .table-select {
+.table-search-input,
+.table-select {
   background: rgba(15, 23, 42, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #f8fafc;
@@ -572,7 +583,8 @@
   transition: border-color 0.2s;
 }
 
-.table-search-input:focus, .table-select:focus {
+.table-search-input:focus,
+.table-select:focus {
   border-color: #818cf8;
 }
 
@@ -641,6 +653,7 @@
     opacity: 0;
     transform: scale(0.96) translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -709,7 +722,9 @@
   font-weight: 500;
 }
 
-.billing-input, .billing-select, .billing-textarea {
+.billing-input,
+.billing-select,
+.billing-textarea {
   background: rgba(15, 23, 42, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #f8fafc;
@@ -720,7 +735,9 @@
   transition: all 0.2s;
 }
 
-.billing-input:focus, .billing-select:focus, .billing-textarea:focus {
+.billing-input:focus,
+.billing-select:focus,
+.billing-textarea:focus {
   border-color: #818cf8;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
@@ -833,7 +850,8 @@
   color: #e2e8f0;
 }
 
-.invoice-items-table th.num-col, .invoice-items-table td.num-col {
+.invoice-items-table th.num-col,
+.invoice-items-table td.num-col {
   text-align: right;
 }
 
@@ -1014,6 +1032,7 @@
     transform: translateY(20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;

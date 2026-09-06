@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from '../../../components/ui/Icon';
 
 export default function BackorderAlert({
   backorders = [],
@@ -17,7 +18,7 @@ export default function BackorderAlert({
     <div className="backorder-alert-banner">
       <div className="backorder-alert-header">
         <div className="alert-icon-wrap">
-          <span className="alert-icon">⚠️</span>
+          <span className="alert-icon"><Icon name="alert-triangle" size={18} color="#f59e0b" /></span>
         </div>
         <div className="alert-text">
           <h5>Active Backorders Detected ({openBackorders.length})</h5>

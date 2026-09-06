@@ -1,4 +1,6 @@
+import { formatCurrency } from '../../../utils/currency';
 import React from 'react';
+import Icon from '../../../components/ui/Icon';
 
 export default function WarehouseAllocationTable({
   allocations = [],
@@ -12,7 +14,7 @@ export default function WarehouseAllocationTable({
   if (!allocations || allocations.length === 0) {
     return (
       <div className="empty-allocations-state">
-        <span className="empty-icon">📦</span>
+        <span className="empty-icon"><Icon name="package" size={32} color="#64748b" /></span>
         <p>No warehouse allocations generated yet for this plan.</p>
       </div>
     );
@@ -89,7 +91,7 @@ export default function WarehouseAllocationTable({
                 </td>
                 <td>
                   <span className="shipment-cost-tag">
-                    ${Number(alloc.shipment_cost || 0).toFixed(2)}
+                    {formatCurrency(alloc.shipment_cost)}
                   </span>
                 </td>
                 <td>
@@ -108,7 +110,7 @@ export default function WarehouseAllocationTable({
                         Dispatch ({remainingToDispatch})
                       </button>
                     ) : (
-                      <span className="dispatched-check">✓ Completed</span>
+                      <span className="dispatched-check"><Icon name="check" size={14} style={{ marginRight: '4px' }} /> Completed</span>
                     )}
                   </td>
                 )}

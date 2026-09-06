@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from '../../../components/ui/Icon';
 
 export default function WarehouseSplit({
   allocations = [],
@@ -46,7 +47,7 @@ export default function WarehouseSplit({
         {hubs.map(({ warehouse, allocations: hubAllocs, totalCost, totalUnits }, idx) => (
           <div key={warehouse?.id || idx} className="hub-card">
             <div className="hub-card-header">
-              <div className="hub-icon-wrap">🏢</div>
+              <div className="hub-icon-wrap"><Icon name="warehouse" size={20} color="#6366f1" /></div>
               <div>
                 <strong className="hub-title">{warehouse?.name || 'Regional Hub'}</strong>
                 <small className="hub-sub">

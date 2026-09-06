@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useQuotations } from '../../quotations/quotations.hooks';
 import { listCustomers } from '../../customers/customers.api';
 import { formatCurrency } from '../../../utils/currency';
+import Icon from '../../../components/ui/Icon';
+import AnimatedNumber from '../../../components/ui/AnimatedNumber';
 import './SalesRepDashboard.css';
 
 const QUOTE_STATUSES = {
@@ -97,14 +99,14 @@ export default function SalesRepDashboard() {
       {/* Header */}
       <div className="dashboard-header">
         <div>
-          <h1 className="page-title">Sales Representative Workspace</h1>
+          <h1 className="page-title">Sales Representative <span className="heading-keyword">Workspace</span></h1>
           <p className="subheading">
             Build competitive proposals, track governance approvals, and manage live customer negotiations.
           </p>
         </div>
         <div className="header-actions">
           <button type="button" className="btn btn-outline" onClick={refetch}>
-            ↻ Refresh
+            <Icon name="refresh" size={13} style={{ marginRight: '6px' }} /> Refresh
           </button>
           <Link to="/quotations/new" className="btn btn-primary">
             + New Quotation
@@ -115,7 +117,9 @@ export default function SalesRepDashboard() {
       {/* Error Banner */}
       {error && (
         <div className="form-banner form-banner-error" style={{ marginBottom: '1.5rem' }}>
-          <span>⚠️ {error}</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <Icon name="alert-triangle" size={16} color="#ef4444" /> {error}
+          </span>
           <button type="button" onClick={refetch} className="btn btn-sm btn-outline" style={{ marginLeft: '1rem' }}>
             Retry
           </button>
@@ -128,49 +132,49 @@ export default function SalesRepDashboard() {
           className={`stat-card ${selectedTab === 'all' ? 'highlight' : ''}`}
           onClick={() => setSelectedTab('all')}
         >
-          <div className="stat-value">{stats.total}</div>
+          <div className="stat-value"><AnimatedNumber value={stats.total} /></div>
           <div className="stat-label">Total Deals</div>
         </div>
         <div
           className={`stat-card ${selectedTab === 'DRAFT' ? 'highlight' : ''}`}
           onClick={() => setSelectedTab('DRAFT')}
         >
-          <div className="stat-value">{stats.draft}</div>
+          <div className="stat-value"><AnimatedNumber value={stats.draft} /></div>
           <div className="stat-label">Drafts</div>
         </div>
         <div
           className={`stat-card ${selectedTab === 'PENDING_APPROVAL' ? 'highlight' : ''}`}
           onClick={() => setSelectedTab('PENDING_APPROVAL')}
         >
-          <div className="stat-value">{stats.pending}</div>
+          <div className="stat-value"><AnimatedNumber value={stats.pending} /></div>
           <div className="stat-label">Pending Approval</div>
         </div>
         <div
           className={`stat-card success ${selectedTab === 'APPROVED' ? 'highlight' : ''}`}
           onClick={() => setSelectedTab('APPROVED')}
         >
-          <div className="stat-value">{stats.approved}</div>
+          <div className="stat-value"><AnimatedNumber value={stats.approved} /></div>
           <div className="stat-label">Approved</div>
         </div>
         <div
           className={`stat-card ${selectedTab === 'SENT' ? 'highlight' : ''}`}
           onClick={() => setSelectedTab('SENT')}
         >
-          <div className="stat-value">{stats.sent}</div>
+          <div className="stat-value"><AnimatedNumber value={stats.sent} /></div>
           <div className="stat-label">Sent to Customer</div>
         </div>
         <div
           className={`stat-card warning ${selectedTab === 'UNDER_NEGOTIATION' ? 'highlight' : ''}`}
           onClick={() => setSelectedTab('UNDER_NEGOTIATION')}
         >
-          <div className="stat-value">{stats.negotiating}</div>
+          <div className="stat-value"><AnimatedNumber value={stats.negotiating} /></div>
           <div className="stat-label">Negotiating</div>
         </div>
         <div
           className={`stat-card success ${selectedTab === 'CONFIRMED' ? 'highlight' : ''}`}
           onClick={() => setSelectedTab('CONFIRMED')}
         >
-          <div className="stat-value">{stats.confirmed}</div>
+          <div className="stat-value"><AnimatedNumber value={stats.confirmed} /></div>
           <div className="stat-label">Confirmed</div>
         </div>
       </div>

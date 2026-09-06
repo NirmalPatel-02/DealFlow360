@@ -7,7 +7,7 @@ export default function LoginPage() {
   const notice = location.state?.notice;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
+    <div className="flex flex-col items-center justify-center max-h-screen">
         <h1 className="page-title text-ink text-4xl font-bold">Welcome back</h1>
       <p className="subheading">Sign in to your DealFlow360 workspace.</p>
     <section className="auth-card">

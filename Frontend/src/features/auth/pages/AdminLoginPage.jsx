@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
   return (
     <section className="auth-card admin-login-card">
       <p className="eyebrow">DealFlow360 / Control room</p>
-      <h1 className="page-title">Admin sign in</h1>
+      <h1 className="page-title">Admin Login</h1>
       <p className="subheading">Manage the catalog, access, and commercial tiers.</p>
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         {formError ? <p className="form-banner">{formError}</p> : null}

@@ -1,4 +1,6 @@
 import React from 'react';
+import Icon from '../../../components/ui/Icon';
+import { formatCurrency } from '../../../utils/currency';
 
 export default function BillingBreakdown({
   subtotal = 0,
@@ -12,11 +14,7 @@ export default function BillingBreakdown({
   recurring = null,
 }) {
   const fmt = (val) =>
-    new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency || 'INR',
-      maximumFractionDigits: 2,
-    }).format(Number(val) || 0);
+    formatCurrency(val, currency);
 
   const numSubtotal = Number(subtotal) || 0;
   const numDiscount = Number(discountAmount) || 0;
@@ -28,7 +26,8 @@ export default function BillingBreakdown({
   return (
     <div className="billing-breakdown-card">
       <h3 className="breakdown-title">
-        <span className="breakdown-title-icon">📊</span> Financial Ledger & Breakdown
+        <Icon name="chart" size={18} style={{ marginRight: '6px' }} />
+        Financial Ledger & Breakdown
       </h3>
 
       <div className="breakdown-rows">
@@ -80,7 +79,9 @@ export default function BillingBreakdown({
           <div className="split-billing-grid">
             {oneTime && (
               <div className="split-box">
-                <span className="split-type">⚡ One-Time Hardware / Capex</span>
+                <span className="split-type" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Icon name="package" size={14} /> One-Time Hardware / Capex
+                </span>
                 <div className="split-metric">
                   <span>Total:</span> <strong>{fmt(oneTime.invoiceTotal || oneTime.totalAmount || 0)}</strong>
                 </div>
@@ -94,7 +95,9 @@ export default function BillingBreakdown({
             )}
             {recurring && (
               <div className="split-box">
-                <span className="split-type">🔄 Recurring Subscriptions</span>
+                <span className="split-type" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Icon name="refresh" size={14} /> Recurring Subscriptions
+                </span>
                 <div className="split-metric">
                   <span>Active Plans:</span> <strong>{recurring.activeSubscriptions || 0}</strong>
                 </div>

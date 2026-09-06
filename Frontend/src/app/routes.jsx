@@ -22,6 +22,8 @@ import FulfillmentPage from '../features/fulfillment/pages/FulfillmentPage';
 import InvoiceListPage from '../features/billing/pages/InvoiceListPage';
 import InvoiceDetailsPage from '../features/billing/pages/InvoiceDetailsPage';
 import PaymentPage from '../features/billing/pages/PaymentPage';
+import PortalLayout from '../layouts/PortalLayout';
+import CustomerPortalPage from '../features/portal/pages/CustomerPortalPage';
 
 function Root() {
   return (
@@ -58,6 +60,13 @@ export const router = createBrowserRouter([
             element: <AdminLayout />,
             children: [{ path: '/admin', element: <AdminDashboardPage /> }],
           },
+        ],
+      },
+      {
+        element: <PortalLayout />,
+        children: [
+          { path: '/portal', element: <CustomerPortalPage /> },
+          { path: '/portal/quote-access', element: <CustomerPortalPage /> },
         ],
       },
       {

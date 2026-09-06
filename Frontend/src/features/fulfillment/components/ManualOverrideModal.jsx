@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Icon from '../../../components/ui/Icon';
 
 export default function ManualOverrideModal({
   isOpen,
@@ -84,8 +85,8 @@ export default function ManualOverrideModal({
               Directly assign inventory stock from a specific warehouse to a quotation line.
             </p>
           </div>
-          <button type="button" className="modal-close-btn" onClick={onClose}>
-            ✕
+          <button type="button" className="modal-close-btn" onClick={onClose} aria-label="Close">
+            <Icon name="x" size={18} />
           </button>
         </div>
 

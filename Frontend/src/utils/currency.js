@@ -4,17 +4,17 @@
  * @param {string} [currency='USD']
  * @returns {string}
  */
-export function formatCurrency(amount, currency = 'USD') {
+export function formatCurrency(amount, currency = 'INR', options = {}) {
   const numeric = Number(amount || 0);
   try {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: currency || 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      currency: 'INR',
+      minimumFractionDigits: options.decimals ?? 0,
+      maximumFractionDigits: options.decimals ?? 0,
     }).format(numeric);
   } catch {
-    return `${currency} ${numeric.toFixed(2)}`;
+    return `₹${numeric.toLocaleString('en-IN')}`;
   }
 }
 

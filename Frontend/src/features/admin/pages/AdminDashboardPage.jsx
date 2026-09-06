@@ -26,6 +26,8 @@ import {
 } from '../../discounts/discounts.api';
 import { getErrorMessage } from '../../../services/api/apiError';
 import { formatCurrency } from '../../../utils/currency';
+import Icon from '../../../components/ui/Icon';
+import AnimatedNumber from '../../../components/ui/AnimatedNumber';
 import './admin.css';
 
 const TABS = [
@@ -451,7 +453,7 @@ export default function AdminDashboardPage() {
       <div className="admin-heading">
         <div>
           <p className="eyebrow">DealFlow360 / Governance & Catalog</p>
-          <h1 className="page-title">Admin Control Center</h1>
+          <h1 className="page-title">Admin <span className="heading-keyword">Control Center</span></h1>
           <p className="subheading">
             Manage commercial catalogs, role permissions, approval chains, and governance guardrails.
           </p>
@@ -470,20 +472,25 @@ export default function AdminDashboardPage() {
       {/* Alerts */}
       {error && (
         <div className="form-banner admin-alert admin-alert-error">
-          <span>⚠️ {error}</span>
-          <button className="admin-alert-dismiss" onClick={() => setError('')}>
-            ×
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <Icon name="alert-triangle" size={16} color="#ef4444" /> {error}
+          </span>
+          <button className="admin-alert-dismiss" onClick={() => setError('')} aria-label="Dismiss">
+            <Icon name="x" size={14} />
           </button>
         </div>
       )}
       {successMessage && (
         <div className="form-banner form-banner-muted admin-alert admin-alert-success">
-          <span>✓ {successMessage}</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <Icon name="check-circle" size={16} color="#10b981" /> {successMessage}
+          </span>
           <button
             className="admin-alert-dismiss"
             onClick={() => setSuccessMessage('')}
+            aria-label="Dismiss"
           >
-            ×
+            <Icon name="x" size={14} />
           </button>
         </div>
       )}
@@ -492,19 +499,19 @@ export default function AdminDashboardPage() {
       <div className="admin-stat-grid">
         <div className="admin-stat">
           <span>Total Managed Users</span>
-          <strong>{summary?.users ?? users.length}</strong>
+          <strong><AnimatedNumber value={summary?.users ?? users.length} /></strong>
         </div>
         <div className="admin-stat">
           <span>Active Customers</span>
-          <strong>{summary?.activeCustomers ?? 0}</strong>
+          <strong><AnimatedNumber value={summary?.activeCustomers ?? 0} /></strong>
         </div>
         <div className="admin-stat">
           <span>Active Catalog Items</span>
-          <strong>{summary?.activeProducts ?? products.length}</strong>
+          <strong><AnimatedNumber value={summary?.activeProducts ?? products.length} /></strong>
         </div>
         <div className="admin-stat">
           <span>Total Deals / Quotes</span>
-          <strong>{summary?.quotations ?? 0}</strong>
+          <strong><AnimatedNumber value={summary?.quotations ?? 0} /></strong>
         </div>
         <div className="admin-stat">
           <span>Confirmed Revenue</span>
@@ -952,8 +959,9 @@ export default function AdminDashboardPage() {
                             className="admin-delete"
                             onClick={() => handleDeleteBand(band.id)}
                             title="Remove Band"
+                            aria-label="Remove Band"
                           >
-                            ×
+                            <Icon name="trash" size={15} />
                           </button>
                         </td>
                       </tr>
@@ -1041,8 +1049,9 @@ export default function AdminDashboardPage() {
                           className="admin-delete"
                           onClick={() => handleDeleteDiscountRule(rule.id)}
                           title="Delete Rule"
+                          aria-label="Delete Rule"
                         >
-                          ×
+                          <Icon name="trash" size={15} />
                         </button>
                       </td>
                     </tr>
@@ -1198,7 +1207,7 @@ export default function AdminDashboardPage() {
                 onClick={() => setModal(null)}
                 aria-label="Close"
               >
-                ×
+                <Icon name="x" size={18} />
               </button>
             </div>
 

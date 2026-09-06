@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getInvoice, recordPayment, cancelInvoice, getOrderBillingSummary } from '../billing.api';
 import PaymentStatus from '../components/PaymentStatus';
 import BillingBreakdown from '../components/BillingBreakdown';
+import Icon from '../../../components/ui/Icon';
+import { formatCurrency } from '../../../utils/currency';
 import '../BillingStyles.css';
 
 export default function InvoiceDetailsPage() {
@@ -92,12 +94,7 @@ export default function InvoiceDetailsPage() {
     }
   };
 
-  const fmt = (val) =>
-    new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: invoice?.currency || 'INR',
-      maximumFractionDigits: 2,
-    }).format(Number(val) || 0);
+  const fmt = (val) => formatCurrency(val, invoice?.currency);
 
   if (loading) {
     return (
@@ -114,7 +111,7 @@ export default function InvoiceDetailsPage() {
     return (
       <div className="invoice-detail-workspace">
         <div className="empty-state-box">
-          <div className="empty-state-icon">⚠️</div>
+          <div className="empty-state-icon"><Icon name="alert-triangle" size={32} color="#f59e0b" /></div>
           <h3>Invoice Not Found</h3>
           <p>{error || 'The requested invoice could not be located.'}</p>
           <Link to="/billing" className="btn btn-primary" style={{ marginTop: '1rem' }}>
@@ -145,7 +142,7 @@ export default function InvoiceDetailsPage() {
         }}
       >
         <Link to="/billing" className="btn btn-secondary btn-sm">
-          ← Back to Billing Hub
+          <Icon name="arrow-left" size={14} style={{ marginRight: '6px' }} /> Back to Billing Hub
         </Link>
 
         <div className="header-actions">
@@ -154,7 +151,7 @@ export default function InvoiceDetailsPage() {
             className="btn btn-secondary"
             onClick={() => window.print()}
           >
-            🖨️ Print / Export PDF
+            <Icon name="printer" size={15} style={{ marginRight: '6px' }} /> Print / Export PDF
           </button>
 
           {Number(invoice.amount_due) > 0 &&
@@ -165,7 +162,7 @@ export default function InvoiceDetailsPage() {
                 className="btn btn-primary"
                 onClick={handleOpenPayment}
               >
-                💳 Record Payment
+                <Icon name="credit-card" size={15} style={{ marginRight: '6px' }} /> Record Payment
               </button>
             )}
 
@@ -206,9 +203,11 @@ export default function InvoiceDetailsPage() {
             </div>
             <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
               <strong>Type:</strong>{' '}
-              {invoice.invoice_type === 'RECURRING'
-                ? '🔄 Recurring Cycle'
-                : '⚡ One-Time Capex'}
+              {invoice.invoice_type === 'RECURRING' ? (
+                <><Icon name="refresh" size={13} style={{ marginRight: '4px' }} /> Recurring Cycle</>
+              ) : (
+                <><Icon name="zap" size={13} style={{ marginRight: '4px' }} /> One-Time Capex</>
+              )}
             </div>
           </div>
         </div>
@@ -329,7 +328,7 @@ export default function InvoiceDetailsPage() {
         {/* Payment History / Audit Trail */}
         <div className="invoice-payments-audit-section">
           <div className="audit-section-header">
-            <h3>💳 Payment & Settlement Ledger ({invoice.payments?.length || 0})</h3>
+            <h3><Icon name="credit-card" size={18} style={{ marginRight: '8px' }} /> Payment & Settlement Ledger ({invoice.payments?.length || 0})</h3>
             {Number(invoice.amount_due) > 0 &&
               invoice.status !== 'CANCELLED' &&
               invoice.status !== 'VOID' && (
@@ -338,7 +337,7 @@ export default function InvoiceDetailsPage() {
                   className="btn btn-primary btn-sm"
                   onClick={handleOpenPayment}
                 >
-                  ➕ Record Transaction
+                  <Icon name="plus" size={14} style={{ marginRight: '4px' }} /> Record Transaction
                 </button>
               )}
           </div>
@@ -404,13 +403,14 @@ export default function InvoiceDetailsPage() {
         <div className="billing-modal-backdrop">
           <div className="billing-modal-box">
             <div className="modal-header">
-              <h2>💳 Record Payment</h2>
+              <h2><Icon name="credit-card" size={20} style={{ marginRight: '8px' }} /> Record Payment</h2>
               <button
                 type="button"
                 className="modal-close-btn"
                 onClick={() => setPaymentModalOpen(false)}
+                aria-label="Close"
               >
-                ✕
+                <Icon name="x" size={18} />
               </button>
             </div>
             <form onSubmit={handleSubmitPayment}>
@@ -509,7 +509,13 @@ export default function InvoiceDetailsPage() {
       {/* Toast */}
       {toast && (
         <div className={`billing-toast ${toast.type}`}>
-          <span>{toast.type === 'success' ? '✅' : '⚠️'}</span>
+          <span>
+            {toast.type === 'success' ? (
+              <Icon name="check-circle" size={18} color="#10b981" />
+            ) : (
+              <Icon name="alert-triangle" size={18} color="#f59e0b" />
+            )}
+          </span>
           <span>{toast.message}</span>
         </div>
       )}

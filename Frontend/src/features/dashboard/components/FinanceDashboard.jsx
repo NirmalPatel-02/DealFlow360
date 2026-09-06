@@ -5,6 +5,9 @@ import { listCustomers } from '../../customers/customers.api';
 import { getDealHealthDashboard } from '../../deal-health/dealHealth.api';
 import { getQuotation, listQuoteApprovals } from '../../quotations/quotations.api';
 import { getErrorMessage } from '../../../services/api/apiError';
+import Icon from '../../../components/ui/Icon';
+import AnimatedNumber from '../../../components/ui/AnimatedNumber';
+import { formatCurrency } from '../../../utils/currency';
 import './FinanceDashboard.css';
 
 const TABS = [
@@ -47,7 +50,7 @@ export default function FinanceDashboard() {
         });
         setCustomerMap(map);
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       active = false;
     };
@@ -57,7 +60,7 @@ export default function FinanceDashboard() {
   const loadHealthDashboard = useCallback(() => {
     getDealHealthDashboard()
       .then((data) => setDealHealthSummary(data))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -85,7 +88,7 @@ export default function FinanceDashboard() {
         });
         setApprovalsMap(appMap);
       })
-      .catch(() => {});
+      .catch(() => { });
 
     return () => {
       active = false;
@@ -222,7 +225,7 @@ export default function FinanceDashboard() {
       <div className="dashboard-header">
         <div>
           <p className="eyebrow">DealFlow360 / Finance & Commercial Governance</p>
-          <h1 className="page-title">Finance & Operations Dashboard</h1>
+          <h1 className="page-title">Finance & Operations <span className="heading-keyword">Dashboard</span></h1>
           <p className="subheading">
             Second-level approvals, gross margin validation, fulfillment readiness, and billing reconciliation.
           </p>
@@ -247,28 +250,26 @@ export default function FinanceDashboard() {
       {/* Financial Executive KPIs */}
       <div className="stats-grid">
         <div className="stat-card highlight">
-          <div className="stat-value">{kpis.pendingCount}</div>
+          <div className="stat-value"><AnimatedNumber value={kpis.pendingCount} /></div>
           <div className="stat-label">Pending Finance Approvals</div>
           <div className="stat-subtext">
-            Exposure: ₹{kpis.pendingValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+            Exposure: {formatCurrency(kpis.pendingValue)}
           </div>
         </div>
         <div className="stat-card success">
-          <div className="stat-value">{kpis.approvedCount}</div>
+          <div className="stat-value"><AnimatedNumber value={kpis.approvedCount} /></div>
           <div className="stat-label">Ready for Fulfillment</div>
           <div className="stat-subtext">
-            Confirmed Value: ₹{kpis.approvedValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+            Confirmed Value: {formatCurrency(kpis.approvedValue)}
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">{kpis.blendedMargin.toFixed(1)}%</div>
+          <div className="stat-value"><AnimatedNumber value={kpis.blendedMargin} decimals={1} />%</div>
           <div className="stat-label">Blended Portfolio Margin</div>
           <div className="stat-subtext">Across all quotes</div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">
-            ₹{kpis.totalVolume.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-          </div>
+          <div className="stat-value">{formatCurrency(kpis.totalVolume)}</div>
           <div className="stat-label">Total Commercial Pipeline</div>
           <div className="stat-subtext">{kpis.totalCount} quotations</div>
         </div>
@@ -335,7 +336,7 @@ export default function FinanceDashboard() {
         </div>
       ) : filteredQuotes.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-state-icon">📊</div>
+          <div className="empty-state-icon"><Icon name="chart" size={42} color="#6366f1" /></div>
           <h3>No quotations in this view</h3>
           <p>{search ? 'Try adjusting your search criteria.' : 'All transactions in this category have been processed.'}</p>
         </div>
@@ -386,26 +387,24 @@ export default function FinanceDashboard() {
                     </td>
                     <td>
                       <span
-                        className={`margin-pill ${
-                          margin >= 25
-                            ? 'margin-pill-healthy'
-                            : margin >= 15
+                        className={`margin-pill ${margin >= 25
+                          ? 'margin-pill-healthy'
+                          : margin >= 15
                             ? 'margin-pill-warning'
                             : 'margin-pill-danger'
-                        }`}
+                          }`}
                       >
                         {margin.toFixed(1)}%
                       </span>
                     </td>
                     <td>
                       <span
-                        className={`risk-badge ${
-                          risk > 40
-                            ? 'risk-high'
-                            : risk > 20
+                        className={`risk-badge ${risk > 40
+                          ? 'risk-high'
+                          : risk > 20
                             ? 'risk-moderate'
                             : 'risk-low'
-                        }`}
+                          }`}
                       >
                         {risk.toFixed(1)}%
                       </span>
@@ -421,7 +420,7 @@ export default function FinanceDashboard() {
                           Step #{currentStep.step_order}: {String(currentStep.approval_level).replace('_', ' ')}
                         </span>
                       ) : statusKey === 'APPROVED' || statusKey === 'SENT' || statusKey === 'CONFIRMED' ? (
-                        <span className="workflow-ready-tag">✓ Ready for Fulfillment</span>
+                        <span className="workflow-ready-tag"><Icon name="check" size={13} style={{ marginRight: '4px' }} /> Ready for Fulfillment</span>
                       ) : (
                         <span className="text-muted text-sm">—</span>
                       )}
@@ -474,7 +473,7 @@ export default function FinanceDashboard() {
                 </p>
               </div>
               <button className="modal-close-btn" onClick={handleCloseModal} aria-label="Close modal">
-                ×
+                <Icon name="x" size={18} />
               </button>
             </div>
 
@@ -508,8 +507,8 @@ export default function FinanceDashboard() {
                         Number(modalQuote.gross_margin_percent || 0) >= 25
                           ? 'text-healthy'
                           : Number(modalQuote.gross_margin_percent || 0) >= 15
-                          ? 'text-warning'
-                          : 'text-danger'
+                            ? 'text-warning'
+                            : 'text-danger'
                       }
                     >
                       {Number(modalQuote.gross_margin_percent || 0).toFixed(1)}% ({modalQuote.currency} {Number(modalQuote.gross_margin || 0).toFixed(2)})
@@ -522,8 +521,8 @@ export default function FinanceDashboard() {
                         Number(modalQuote.risk_score || 0) <= 20
                           ? 'text-healthy'
                           : Number(modalQuote.risk_score || 0) <= 40
-                          ? 'text-warning'
-                          : 'text-danger'
+                            ? 'text-warning'
+                            : 'text-danger'
                       }
                     >
                       {Number(modalQuote.risk_score || 0).toFixed(1)}%
@@ -609,7 +608,7 @@ export default function FinanceDashboard() {
                       onClick={() => handleAction('approve')}
                       disabled={acting}
                     >
-                      {acting ? 'Processing…' : '✓ Approve & Authorize Fulfillment'}
+                      {acting ? 'Processing…' : <><Icon name="check" size={14} style={{ marginRight: '6px' }} /> Approve & Authorize Fulfillment</>}
                     </button>
                     <button
                       type="button"
@@ -617,7 +616,7 @@ export default function FinanceDashboard() {
                       onClick={() => handleAction('return')}
                       disabled={acting}
                     >
-                      {acting ? 'Processing…' : '↩ Request Revision'}
+                      {acting ? 'Processing…' : <><Icon name="rotate-ccw" size={14} style={{ marginRight: '6px' }} /> Request Revision</>}
                     </button>
                     <button
                       type="button"
@@ -625,7 +624,7 @@ export default function FinanceDashboard() {
                       onClick={() => handleAction('reject')}
                       disabled={acting}
                     >
-                      {acting ? 'Processing…' : '✕ Reject Deal'}
+                      {acting ? 'Processing…' : <><Icon name="x" size={14} style={{ marginRight: '6px' }} /> Reject Deal</>}
                     </button>
                   </div>
                 </div>

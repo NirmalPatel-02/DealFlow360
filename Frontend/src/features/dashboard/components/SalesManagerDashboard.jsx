@@ -5,6 +5,9 @@ import { listCustomers } from '../../customers/customers.api';
 import { getDealHealthDashboard } from '../../deal-health/dealHealth.api';
 import { getQuotation, listQuoteApprovals } from '../../quotations/quotations.api';
 import { getErrorMessage } from '../../../services/api/apiError';
+import Icon from '../../../components/ui/Icon';
+import AnimatedNumber from '../../../components/ui/AnimatedNumber';
+import { formatCurrency } from '../../../utils/currency';
 import './SalesManagerDashboard.css';
 
 const PAGE_SIZE = 10;
@@ -233,7 +236,7 @@ export default function SalesManagerDashboard() {
       <div className="dashboard-header">
         <div>
           <p className="eyebrow">DealFlow360 / Governance & Commercial Approvals</p>
-          <h1 className="page-title">Sales Manager Oversight</h1>
+          <h1 className="page-title">Sales Manager <span className="heading-keyword">Oversight</span></h1>
           <p className="subheading">
             Review discount exceptions, enforce governance policies, and expedite approved client orders.
           </p>
@@ -258,31 +261,31 @@ export default function SalesManagerDashboard() {
       {/* Executive KPI Stats Cards */}
       <div className="stats-grid">
         <div className="stat-card highlight">
-          <div className="stat-value">{stats.pendingCount}</div>
+          <div className="stat-value"><AnimatedNumber value={stats.pendingCount} /></div>
           <div className="stat-label">Pending Reviews</div>
           <div className="stat-subtext">
-            Queue Value: ₹{stats.pendingValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+            Queue Value: {formatCurrency(stats.pendingValue)}
           </div>
         </div>
         <div className="stat-card success">
-          <div className="stat-value">{stats.approvedCount}</div>
+          <div className="stat-value"><AnimatedNumber value={stats.approvedCount} /></div>
           <div className="stat-label">Approved & Active</div>
           <div className="stat-subtext">
-            Volume: ₹{stats.approvedValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+            Volume: {formatCurrency(stats.approvedValue)}
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">{stats.avgMargin.toFixed(1)}%</div>
+          <div className="stat-value"><AnimatedNumber value={stats.avgMargin} decimals={1} />%</div>
           <div className="stat-label">Portfolio Gross Margin</div>
           <div className="stat-subtext">Across approved deals</div>
         </div>
         <div className={`stat-card ${stats.atRiskCount > 0 ? 'alert' : ''}`}>
-          <div className="stat-value">{stats.atRiskCount}</div>
+          <div className="stat-value"><AnimatedNumber value={stats.atRiskCount} /></div>
           <div className="stat-label">Deals Flagged At-Risk</div>
           <div className="stat-subtext">Margin & policy anomalies</div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">{stats.totalCount}</div>
+          <div className="stat-value"><AnimatedNumber value={stats.totalCount} /></div>
           <div className="stat-label">Total Commercial Pipeline</div>
           <div className="stat-subtext">Active system quotations</div>
         </div>
@@ -350,7 +353,7 @@ export default function SalesManagerDashboard() {
         </div>
       ) : visibleQuotes.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-state-icon">✓</div>
+          <div className="empty-state-icon"><Icon name="check-circle" size={42} color="#10b981" /></div>
           <h3>No quotations in this view</h3>
           <p>{search ? 'Try adjusting your search criteria or risk filters.' : 'All items in this queue have been handled.'}</p>
         </div>
@@ -508,7 +511,7 @@ export default function SalesManagerDashboard() {
                 </p>
               </div>
               <button className="modal-close-btn" onClick={handleCloseModal} aria-label="Close modal">
-                ×
+                <Icon name="x" size={18} />
               </button>
             </div>
 
@@ -524,108 +527,77 @@ export default function SalesManagerDashboard() {
                 {/* Metrics Summary */}
                 <div className="modal-metrics-grid">
                   <div className="modal-metric-card">
-                    <small>Grand Total</small>
-                    <strong>
+                    <span className="metric-label">Grand Total</span>
+                    <strong className="metric-value">
                       {modalQuote.currency} {Number(modalQuote.grand_total || 0).toFixed(2)}
                     </strong>
                   </div>
                   <div className="modal-metric-card">
-                    <small>Gross Margin</small>
+                    <span className="metric-label">Gross Margin</span>
                     <strong
-                      className={
+                      className={`metric-value ${
                         Number(modalQuote.gross_margin_percent || 0) >= 25
-                          ? 'text-healthy'
+                          ? 'text-success'
                           : Number(modalQuote.gross_margin_percent || 0) >= 10
                           ? 'text-warning'
                           : 'text-danger'
-                      }
+                      }`}
                     >
                       {Number(modalQuote.gross_margin_percent || 0).toFixed(1)}%
                     </strong>
                   </div>
                   <div className="modal-metric-card">
-                    <small>Risk Score</small>
+                    <span className="metric-label">Risk Score</span>
                     <strong
-                      className={
+                      className={`metric-value ${
                         Number(modalQuote.risk_score || 0) <= 20
-                          ? 'text-healthy'
+                          ? 'text-success'
                           : Number(modalQuote.risk_score || 0) <= 40
                           ? 'text-warning'
                           : 'text-danger'
-                      }
+                      }`}
                     >
                       {Number(modalQuote.risk_score || 0).toFixed(1)}%
                     </strong>
                   </div>
                   <div className="modal-metric-card">
-                    <small>Total Discount</small>
-                    <strong className="text-discount">
-                      -{modalQuote.currency} {Number(modalQuote.discount_total || 0).toFixed(2)}
+                    <span className="metric-label">Discount Depth</span>
+                    <strong className="metric-value">
+                      {Number(modalQuote.discount_percent || 0).toFixed(1)}%
                     </strong>
                   </div>
                 </div>
 
-                {/* Line Items Overview */}
-                <div className="modal-lines-table-wrap">
-                  <h4>Line Items & Commercials</h4>
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Product Snapshot</th>
-                        <th>Qty</th>
-                        <th>Unit Rate</th>
-                        <th>Discount</th>
-                        <th>Line Total</th>
-                        <th>Margin</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {modalQuote.lines?.map((l, i) => (
-                        <tr key={l.id || i}>
-                          <td>{l.description_snapshot || 'Product Item'}</td>
-                          <td>{Number(l.quantity)}</td>
-                          <td>
-                            {modalQuote.currency} {Number(l.unit_price || 0).toFixed(2)}
-                          </td>
-                          <td>{Number(l.discount_percent || 0).toFixed(1)}%</td>
-                          <td>
-                            <strong>
-                              {modalQuote.currency} {Number(l.line_total || 0).toFixed(2)}
-                            </strong>
-                          </td>
-                          <td>
-                            {Number(l.line_total) > 0
-                              ? ((Number(l.margin_amount) / Number(l.line_total)) * 100).toFixed(1)
-                              : 0}
-                            %
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Approval Chain Progress */}
+                {/* Approvals Sequence Progress */}
                 {modalApprovals.length > 0 && (
-                  <div className="modal-approvals-box">
-                    <h4>Approval Escalation Chain</h4>
-                    <ol className="approval-stepper">
+                  <div className="modal-section">
+                    <h4>Approval Steps Required</h4>
+                    <div className="modal-steps-list">
                       {modalApprovals.map((app) => (
-                        <li key={app.id} className={`stepper-item step-${String(app.status).toLowerCase()}`}>
-                          <span>Step #{app.step_order}: {String(app.approval_level).replace('_', ' ')}</span>
-                          <strong>{String(app.status).toUpperCase()}</strong>
-                          {app.reason && <p className="step-note">{app.reason}</p>}
-                        </li>
+                        <div key={app.id} className={`modal-step-item step-${String(app.status).toLowerCase()}`}>
+                          <div className="step-info">
+                            <strong>
+                              Step #{app.step_order}: {String(app.approval_level).replace('_', ' ')}
+                            </strong>
+                            {app.acted_at && (
+                              <small className="step-date">{new Date(app.acted_at).toLocaleDateString()}</small>
+                            )}
+                          </div>
+                          <span className={`badge badge-${String(app.status).toLowerCase()}`}>
+                            {app.status}
+                          </span>
+                        </div>
                       ))}
-                    </ol>
+                    </div>
                   </div>
                 )}
 
-                {/* Approver Decision Form */}
+                {/* Decision Input & Action Buttons */}
                 <div className="modal-decision-form">
                   <label className="field">
                     <span className="field-label">
-                      Decision Rationale / Revision Instructions (Required for Reject & Return)
+                      Decision Rationale / Revision Comments{' '}
+                      <span className="text-muted">(Mandatory for Rejection & Revisions)</span>
                     </span>
                     <textarea
                       className="input"
@@ -644,7 +616,7 @@ export default function SalesManagerDashboard() {
                       onClick={() => handleAction('approve')}
                       disabled={acting}
                     >
-                      {acting ? 'Processing…' : '✓ Approve Deal'}
+                      {acting ? 'Processing…' : <><Icon name="check" size={14} style={{ marginRight: '6px' }} /> Approve Deal</>}
                     </button>
                     <button
                       type="button"
@@ -652,7 +624,7 @@ export default function SalesManagerDashboard() {
                       onClick={() => handleAction('return')}
                       disabled={acting}
                     >
-                      {acting ? 'Processing…' : '↩ Request Revision'}
+                      {acting ? 'Processing…' : <><Icon name="rotate-ccw" size={14} style={{ marginRight: '6px' }} /> Request Revision</>}
                     </button>
                     <button
                       type="button"
@@ -660,7 +632,7 @@ export default function SalesManagerDashboard() {
                       onClick={() => handleAction('reject')}
                       disabled={acting}
                     >
-                      {acting ? 'Processing…' : '✕ Reject Deal'}
+                      {acting ? 'Processing…' : <><Icon name="x" size={14} style={{ marginRight: '6px' }} /> Reject Deal</>}
                     </button>
                   </div>
                 </div>

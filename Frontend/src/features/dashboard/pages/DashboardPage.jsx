@@ -47,7 +47,7 @@ function CustomerDashboard() {
       <h1 className="page-title">Customer Portal</h1>
       <p className="subheading">View and respond to quotations from your sales representative.</p>
       <p className="body-copy" style={{ marginTop: '1rem' }}>
-        💡 Customer portal features coming soon:
+        Customer portal features:
       </p>
       <ul style={{ marginTop: '1rem', marginLeft: '2rem' }}>
         <li>View quotations sent to you</li>

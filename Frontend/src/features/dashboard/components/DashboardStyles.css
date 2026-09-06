@@ -677,6 +677,30 @@
   }
 }
 
+/* Keep dashboard variants aligned with the application-wide paper and ink system. */
+.dashboard-container .btn-primary,
+.dashboard-container .btn-success {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.dashboard-container .btn-primary:hover,
+.dashboard-container .btn-primary:focus-visible,
+.dashboard-container .btn-success:hover,
+.dashboard-container .btn-success:focus-visible {
+  background: #543737;
+  color: var(--paper);
+}
+
+.dashboard-container .btn-secondary:hover,
+.dashboard-container .btn-secondary:focus-visible,
+.dashboard-container .btn-outline:hover,
+.dashboard-container .btn-outline:focus-visible {
+  background: #f1e9df;
+  color: #543737;
+  border-color: #543737;
+}
+
 /* Modal Overlay & Quick Decision Panel */
 .modal-overlay {
   position: fixed;

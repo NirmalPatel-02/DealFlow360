@@ -5,11 +5,20 @@ export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const profileRoles = ['sales_rep', 'sales_manager', 'finance_ops', 'finance'];
+  const roleLabels = {
+    sales_rep: 'Sales Representative',
+    sales_manager: 'Sales Manager',
+    finance_ops: 'Finance Manager',
+    finance: 'Finance Manager',
+    customer: 'Customer',
+    admin: 'Administrator',
+  };
+  const roleClass = `user-role-${user?.role || 'default'}`;
 
   return (
     <div className="app-shell">
       <header className="app-topbar">
-        <div style={{ display: 'flex', alignItem: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
           <Link to="/dashboard" className="brand-mark">
             DealFlow360
           </Link>
@@ -43,6 +52,10 @@ export default function DashboardLayout() {
           </nav>
         </div>
         <div className="app-topbar-meta">
+          <div className={`topbar-user ${roleClass}`}>
+            <strong>{user?.full_name || 'User'}</strong>
+            <span>{roleLabels[user?.role] || user?.role || 'User'}</span>
+          </div>
           {profileRoles.includes(user?.role) && location.pathname !== '/profile' ? (
             <Link to="/profile" className="profile-icon-link" aria-label="Open profile" title="Profile">
               <span aria-hidden="true">◎</span>

@@ -417,18 +417,6 @@ export default function QuotationFormPage() {
                   />
                 </label>
                 <label className="field">
-                  <span className="field-label">Pricing Tier</span>
-                  <select
-                    className="input"
-                    value={customerDraft.tier}
-                    onChange={(e) => setCustomerDraft((d) => ({ ...d, tier: e.target.value }))}
-                  >
-                    <option value="bronze">Bronze Tier</option>
-                    <option value="silver">Silver Tier</option>
-                    <option value="gold">Gold Tier</option>
-                  </select>
-                </label>
-                <label className="field">
                   <span className="field-label">Currency</span>
                   <select
                     className="input"
@@ -476,16 +464,6 @@ export default function QuotationFormPage() {
           <div className="quotation-form-grid">
             <label className="field">
               <span className="field-label">Select Customer *</span>
-              {!editing && (
-                <input
-                  className="input"
-                  value={customerSearch}
-                  onChange={(e) => setCustomerSearch(e.target.value)}
-                  placeholder="Type to filter customers…"
-                  style={{ marginBottom: '0.4rem' }}
-                  disabled={busy}
-                />
-              )}
               <select
                 className="input"
                 name="customer_id"
@@ -495,15 +473,14 @@ export default function QuotationFormPage() {
                 required
               >
                 <option value="">-- Choose customer account --</option>
-                {visibleCustomers.map((customer) => (
+                {customers.map((customer) => (
                   <option key={customer.id} value={customer.id}>
-                    {customer.name} ({customer.code}) · {customer.tier?.toUpperCase()} · {customer.currency}
+                    {customer.name} ({customer.code}) · {customer.currency}
                   </option>
                 ))}
               </select>
               {selectedCustomer && (
                 <div className="customer-badge-info">
-                  <span className="tier-tag">{selectedCustomer.tier?.toUpperCase()} TIER</span>
                   <span className="currency-tag">Currency: {selectedCustomer.currency}</span>
                   <span className="code-tag">Code: {selectedCustomer.code}</span>
                 </div>
@@ -548,13 +525,6 @@ export default function QuotationFormPage() {
 
           {/* Catalog Filters */}
           <div className="quotation-form-grid product-filters" style={{ marginBottom: '1.25rem' }}>
-            <Field
-              label="Search Catalog"
-              name="product_search"
-              placeholder="Filter products by name or SKU…"
-              value={productSearch}
-              onChange={(e) => setProductSearch(e.target.value)}
-            />
             <label className="field">
               <span className="field-label">Category Filter</span>
               <select
@@ -580,7 +550,6 @@ export default function QuotationFormPage() {
                 <option value="">All Types</option>
                 <option value="hardware">Hardware</option>
                 <option value="service">Service</option>
-                <option value="subscription">Subscription</option>
               </select>
             </label>
           </div>
@@ -632,21 +601,6 @@ export default function QuotationFormPage() {
                             {p.name} ({p.code}) · Base: {currencyCode} {Number(p.base_price).toFixed(2)}
                           </option>
                         ))}
-                      </select>
-                    </label>
-
-                    <label className="field">
-                      <span className="field-label">Contract Type</span>
-                      <select
-                        className="input"
-                        name="line_type"
-                        value={line.line_type}
-                        onChange={(e) => updateLineValue(index, e)}
-                        disabled={busy}
-                      >
-                        <option value="one_time">One-time</option>
-                        <option value="recurring">Recurring</option>
-                        <option value="subscription">Subscription</option>
                       </select>
                     </label>
 

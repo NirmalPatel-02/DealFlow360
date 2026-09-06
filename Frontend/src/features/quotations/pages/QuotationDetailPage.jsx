@@ -15,6 +15,7 @@ import {
 } from '../../recommendations/recommendations.api';
 import { getQuoteHealth } from '../../deal-health/dealHealth.api';
 import { getErrorMessage } from '../../../services/api/apiError';
+import Icon from '../../../components/ui/Icon';
 import '../quotation-pages.css';
 
 const STATUS_CONFIG = {
@@ -302,7 +303,7 @@ export default function QuotationDetailPage() {
             <span className={`status-badge ${statusInfo.className}`}>{statusInfo.label}</span>
           </div>
           <p className="subheading">
-            Account: <strong>{customer?.name || 'Customer Account'}</strong> ({customer?.code || quotation.customer_id}) ·{' '}
+            {/* Account: <strong>{customer?.name || 'Customer Account'}</strong> ({customer?.code || quotation.customer_id}) ·{' '} */}
             Tier: <strong>{customer?.tier?.toUpperCase() || quotation.customer_tier_snapshot?.toUpperCase() || 'STANDARD'}</strong>
           </p>
         </div>
@@ -382,7 +383,11 @@ export default function QuotationDetailPage() {
         <div className={`deal-health-banner ${dealHealth.health === 'AT_RISK' ? 'health-at-risk' : 'health-healthy'}`}>
           <div className="health-header">
             <span className="health-status-tag">
-              {dealHealth.health === 'AT_RISK' ? '⚠️ DEAL AT RISK' : '✓ DEAL HEALTHY'}
+              {dealHealth.health === 'AT_RISK' ? (
+                <><Icon name="alert-triangle" size={13} style={{ marginRight: '5px' }} /> DEAL AT RISK</>
+              ) : (
+                <><Icon name="check" size={13} style={{ marginRight: '5px' }} /> DEAL HEALTHY</>
+              )}
             </span>
             <span className="health-meta">
               Risk Score: {Number(dealHealth.riskScore || 0).toFixed(1)}% · Margin:{' '}
@@ -523,7 +528,7 @@ export default function QuotationDetailPage() {
                 onClick={handleEvaluate}
                 disabled={evaluating || submitting}
               >
-                {evaluating ? 'Evaluating Risk…' : '🔍 Evaluate Deal'}
+                {evaluating ? 'Evaluating Risk…' : <><Icon name="search" size={14} style={{ marginRight: '6px' }} /> Evaluate Deal</>}
               </button>
               <button
                 type="button"
@@ -531,7 +536,7 @@ export default function QuotationDetailPage() {
                 onClick={handleSubmitQuote}
                 disabled={submitting || evaluating}
               >
-                {submitting ? 'Submitting…' : '🚀 Submit for Approval'}
+                {submitting ? 'Submitting…' : <><Icon name="send" size={14} style={{ marginRight: '6px' }} /> Submit for Approval</>}
               </button>
             </div>
           </div>
@@ -562,7 +567,7 @@ export default function QuotationDetailPage() {
                   </ul>
                 </div>
               ) : (
-                <p className="no-violations">✓ No discount governance violations detected. Eligible for expedited approval.</p>
+                <p className="no-violations"><Icon name="check" size={14} color="#2e6618" style={{ marginRight: '6px' }} /> No discount governance violations detected. Eligible for expedited approval.</p>
               )}
             </div>
           )}
@@ -629,7 +634,7 @@ export default function QuotationDetailPage() {
                   onClick={() => handleApprovalAction('approve')}
                   disabled={acting}
                 >
-                  {acting ? 'Processing…' : '✓ Approve Deal'}
+                  {acting ? 'Processing…' : <><Icon name="check" size={14} style={{ marginRight: '6px' }} /> Approve Deal</>}
                 </button>
                 <button
                   type="button"
@@ -637,7 +642,7 @@ export default function QuotationDetailPage() {
                   onClick={() => handleApprovalAction('return')}
                   disabled={acting}
                 >
-                  {acting ? 'Processing…' : '↩ Request Revision'}
+                  {acting ? 'Processing…' : <><Icon name="rotate-ccw" size={14} style={{ marginRight: '6px' }} /> Request Revision</>}
                 </button>
                 <button
                   type="button"
@@ -645,7 +650,7 @@ export default function QuotationDetailPage() {
                   onClick={() => handleApprovalAction('reject')}
                   disabled={acting}
                 >
-                  {acting ? 'Processing…' : '✕ Reject Deal'}
+                  {acting ? 'Processing…' : <><Icon name="x" size={14} style={{ marginRight: '6px' }} /> Reject Deal</>}
                 </button>
               </div>
             </div>
@@ -734,7 +739,7 @@ export default function QuotationDetailPage() {
                     <option value="">-- Choose recipient contact --</option>
                     {contacts.map((contact) => (
                       <option key={contact.id} value={contact.id}>
-                        {contact.name} ({contact.email}) {contact.is_primary ? '★ Primary' : ''}
+                        {contact.name} ({contact.email}) {contact.is_primary ? '(Primary)' : ''}
                       </option>
                     ))}
                   </select>
@@ -747,7 +752,7 @@ export default function QuotationDetailPage() {
                     onClick={handleShareQuote}
                     disabled={sharing || !selectedContactId}
                   >
-                    {sharing ? 'Generating Link…' : '🔗 Generate Portal Link'}
+                    {sharing ? 'Generating Link…' : <><Icon name="link" size={14} style={{ marginRight: '6px' }} /> Generate Portal Link</>}
                   </button>
                 </div>
               </div>
@@ -797,13 +802,13 @@ export default function QuotationDetailPage() {
       <div className="quotation-form-section recommendations-panel">
         <div className="section-heading-row">
           <div>
-            <h2>AI-Powered Upsell & Cross-Sell Recommendations</h2>
+            <h2>Upsell & Cross-Sell Recommendations</h2>
             <p className="section-subtext">
               Recommended additions based on customer co-purchase affinity and margin optimization rules.
             </p>
           </div>
           <button type="button" className="btn btn-sm btn-outline" onClick={loadRecommendations} disabled={recsLoading}>
-            {recsLoading ? 'Refreshing…' : '↻ Refresh Recommendations'}
+            {recsLoading ? 'Refreshing…' : <><Icon name="refresh" size={13} style={{ marginRight: '6px' }} /> Refresh Recommendations</>}
           </button>
         </div>
 

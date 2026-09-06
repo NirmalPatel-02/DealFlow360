@@ -240,9 +240,35 @@ p,
   color: var(--paper);
 }
 
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: #650000;
+  color: var(--paper);
+}
+
+.btn-secondary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus-visible {
+  background: #543737;
+  color: var(--paper);
+}
+
 .btn-outline {
   background: var(--paper);
   color: var(--ink);
+}
+
+.btn-outline:hover,
+.btn-outline:focus-visible,
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+  background: #f1e9df;
+  color: #543737;
+  border-color: #543737;
 }
 
 .btn-ghost {
@@ -267,6 +293,114 @@ p,
   align-items: center;
   gap: 0.75rem;
 }
+
+.topbar-user {
+  display: grid;
+  gap: 0.1rem;
+  text-align: right;
+}
+
+.topbar-user strong { font-size: 0.9rem; }
+.topbar-user span { color: #4b5563; font-size: 0.72rem; }
+.user-role-customer strong { color: #c58b13; }
+.user-role-sales_rep strong { color: #c66b2d; }
+.user-role-sales_manager strong { color: #714b4b; }
+.user-role-finance_ops strong,
+.user-role-finance strong { color: #3f8a5b; }
+.user-role-admin strong { color: var(--ink); }
+
+.heading-keyword {
+  display: inline-block;
+  color: var(--ink);
+  font-family: 'Bricolage Grotesque', Georgia, serif;
+  font-style: italic;
+  font-weight: 800;
+}
+
+/* Shared table contract used by admin, dashboards, billing, fulfillment, and feature pages. */
+table.data-table,
+table.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--sub);
+  font-size: 0.875rem;
+}
+
+table.data-table thead,
+table.admin-table thead { background: #faf8f2; }
+table.data-table th,
+table.admin-table th {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-align: left;
+  text-transform: uppercase;
+}
+table.data-table td,
+table.admin-table td { padding: 0.95rem 1rem; border-bottom: 1px solid var(--line); }
+table.data-table tbody tr:last-child td,
+table.admin-table tbody tr:last-child td { border-bottom: 0; }
+table.data-table tbody tr:hover,
+table.admin-table tbody tr:hover { background: #fffdf6; }
+
+/* Feature stylesheets may define their own button colors; keep the product-wide rule authoritative. */
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: #650000 !important;
+  color: var(--paper) !important;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus-visible {
+  background: #543737 !important;
+  color: var(--paper) !important;
+}
+
+.btn-outline:hover,
+.btn-outline:focus-visible,
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+  background: #f1e9df !important;
+  color: #543737 !important;
+  border-color: #543737 !important;
+}
+
+table:not(.data-table):not(.admin-table) {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+table:not(.data-table):not(.admin-table) th {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: #faf8f2;
+  color: var(--ink);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+table:not(.data-table):not(.admin-table) td {
+  padding: 0.95rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+table:not(.data-table):not(.admin-table) tbody tr:last-child td { border-bottom: 0; }
+table:not(.data-table):not(.admin-table) tbody tr:hover { background: #fffdf6; }
 
 .app-topbar-nav {
   display: flex;
@@ -356,3 +490,269 @@ p,
     padding: 2rem 1rem 3rem;
   }
 }
+
+/* ==========================================================================
+   GLOBAL STANDARDIZATION: TABLES & MODALS (MATCHING ADMIN DESIGN SYSTEM)
+   ========================================================================== */
+
+/* 1. Universal Table Card Containers */
+.admin-table-card,
+.billing-table-card,
+.quotations-table-wrapper,
+.allocations-table-container,
+.table-responsive,
+.table-card,
+.portal-table-container,
+.portal-line-items-container {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  box-shadow: 0 8px 24px rgba(113, 75, 75, 0.04);
+  margin-bottom: 1.5rem;
+}
+
+/* 2. Universal Table Base */
+.admin-table,
+.billing-data-table,
+.data-table,
+.dashboard-table,
+.allocations-table,
+.approvals-table,
+.finance-table,
+.portal-line-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+  background: var(--paper);
+}
+
+/* 3. Universal Table Headers */
+.admin-table th,
+.billing-data-table th,
+.data-table th,
+.dashboard-table th,
+.allocations-table th,
+.approvals-table th,
+.finance-table th,
+.portal-line-items-table th {
+  padding: 1.05rem 1rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  background: #faf8f2;
+  text-align: left;
+  font-size: 0.74rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* 4. Universal Table Data Cells */
+.admin-table td,
+.billing-data-table td,
+.data-table td,
+.dashboard-table td,
+.allocations-table td,
+.approvals-table td,
+.finance-table td,
+.portal-line-items-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--sub);
+  font-size: 0.92rem;
+  vertical-align: middle;
+  background: transparent;
+}
+
+/* 5. Row Hover State */
+.admin-table tr:hover td,
+.billing-data-table tr:hover td,
+.data-table tr:hover td,
+.dashboard-table tr:hover td,
+.allocations-table tr:hover td,
+.approvals-table tr:hover td,
+.finance-table tr:hover td,
+.portal-line-items-table tr:hover td {
+  background: #fdfcfa;
+}
+
+/* 6. Last Row Border Suppression */
+.admin-table tr:last-child td,
+.billing-data-table tr:last-child td,
+.data-table tr:last-child td,
+.dashboard-table tr:last-child td,
+.allocations-table tr:last-child td,
+.approvals-table tr:last-child td,
+.finance-table tr:last-child td,
+.portal-line-items-table tr:last-child td {
+  border-bottom: 0;
+}
+
+/* 7. Universal Modal Backdrop */
+.admin-modal-backdrop,
+.billing-modal-backdrop,
+.modal-backdrop,
+.modal-overlay,
+.portal-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(40, 30, 30, 0.45);
+  backdrop-filter: blur(4px);
+  animation: modal-fade-in 180ms ease;
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 8. Universal Modal Card / Container */
+.admin-modal,
+.billing-modal-box,
+.modal-container,
+.modal-content,
+.portal-modal-box {
+  width: min(34rem, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+  box-shadow: 0 24px 80px rgba(40, 30, 30, 0.25);
+  color: var(--sub);
+  animation: modal-slide-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-slide-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 9. Universal Modal Header */
+.admin-modal-header,
+.billing-modal-box .modal-header,
+.modal-container .modal-header,
+.modal-content .modal-header,
+.portal-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-modal-header h2,
+.admin-modal-header h3,
+.billing-modal-box .modal-header h2,
+.modal-container .modal-header h3,
+.modal-content .modal-header h2,
+.portal-modal-header h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: 'Bricolage Grotesque', Arial, sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* 10. Universal Modal Close Button */
+.admin-close,
+.modal-close-btn,
+.portal-modal-close {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 160ms ease;
+}
+
+.admin-close:hover,
+.modal-close-btn:hover,
+.portal-modal-close:hover {
+  color: var(--ink);
+  background: var(--banner);
+}
+
+/* 11. Universal Modal Body */
+.billing-modal-box .modal-body,
+.modal-container .modal-body,
+.modal-content .modal-body,
+.portal-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  padding: 0.25rem 0;
+  color: var(--sub);
+}
+
+/* 12. Universal Modal Actions / Footer */
+.admin-modal-actions,
+.billing-modal-box .modal-footer,
+.modal-container .modal-footer,
+.modal-content .modal-actions,
+.modal-content .modal-actions-row,
+.portal-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  background: transparent;
+}
+
+/* 13. Form Controls Inside Standardized Modals */
+.billing-modal-box .billing-input,
+.billing-modal-box .billing-select,
+.modal-container .form-input,
+.portal-modal-box .portal-input,
+.portal-modal-box .portal-textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.9rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.billing-modal-box .billing-input:focus,
+.billing-modal-box .billing-select:focus,
+.modal-container .form-input:focus,
+.portal-modal-box .portal-input:focus,
+.portal-modal-box .portal-textarea:focus {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: 0 0 0 2px rgba(113, 75, 75, 0.12);
+}
+
+.billing-modal-box label,
+.modal-container label,
+.portal-modal-box label {
+  color: var(--sub);
+  font-weight: 600;
+  font-size: 0.84rem;
+}
+

@@ -25,9 +25,11 @@ import { getErrorMessage } from '../../../services/api/apiError';
 
 import WarehouseAllocationTable from '../components/WarehouseAllocationTable';
 import ShipmentSummary from '../components/ShipmentSummary';
+import { formatCurrency } from '../../../utils/currency';
 import BackorderAlert from '../components/BackorderAlert';
 import ManualOverrideModal from '../components/ManualOverrideModal';
 import WarehouseSplit from '../components/WarehouseSplit';
+import Icon from '../../../components/ui/Icon';
 import '../FulfillmentStyles.css';
 
 export default function FulfillmentPage() {
@@ -451,7 +453,7 @@ export default function FulfillmentPage() {
       {/* Top Operational KPIs */}
       <section className="fulfillment-kpi-grid">
         <div className="fulfillment-kpi-card">
-          <div className="kpi-icon-box">🏢</div>
+          <div className="kpi-icon-box"><Icon name="warehouse" size={22} color="#6366f1" /></div>
           <div className="kpi-content">
             <span className="kpi-val">{kpis.totalWarehouses}</span>
             <span className="kpi-lbl">Active Facilities</span>
@@ -459,7 +461,7 @@ export default function FulfillmentPage() {
         </div>
 
         <div className="fulfillment-kpi-card">
-          <div className="kpi-icon-box green">📦</div>
+          <div className="kpi-icon-box green"><Icon name="package" size={22} color="#10b981" /></div>
           <div className="kpi-content">
             <span className="kpi-val">{kpis.totalAvailable}</span>
             <span className="kpi-lbl">Available Stock Units</span>
@@ -467,7 +469,7 @@ export default function FulfillmentPage() {
         </div>
 
         <div className="fulfillment-kpi-card">
-          <div className="kpi-icon-box cyan">🔒</div>
+          <div className="kpi-icon-box cyan"><Icon name="lock" size={22} color="#06b6d4" /></div>
           <div className="kpi-content">
             <span className="kpi-val">{kpis.totalReserved}</span>
             <span className="kpi-lbl">Reserved in Plans</span>
@@ -475,7 +477,7 @@ export default function FulfillmentPage() {
         </div>
 
         <div className="fulfillment-kpi-card">
-          <div className="kpi-icon-box amber">🚚</div>
+          <div className="kpi-icon-box amber"><Icon name="truck" size={22} color="#f59e0b" /></div>
           <div className="kpi-content">
             <span className="kpi-val">{kpis.readyQuotesCount}</span>
             <span className="kpi-lbl">Ready for Dispatch</span>
@@ -483,7 +485,7 @@ export default function FulfillmentPage() {
         </div>
 
         <div className="fulfillment-kpi-card">
-          <div className="kpi-icon-box amber">⚠️</div>
+          <div className="kpi-icon-box amber"><Icon name="alert-triangle" size={22} color="#f59e0b" /></div>
           <div className="kpi-content">
             <span className="kpi-val">{kpis.openBO}</span>
             <span className="kpi-lbl">Open Backorders</span>
@@ -588,7 +590,7 @@ export default function FulfillmentPage() {
                             </div>
                           </td>
                           <td>
-                            <strong>${Number(q.grand_total || 0).toFixed(2)}</strong>
+                            <strong>{formatCurrency(q.grand_total)}</strong>
                           </td>
                           <td>
                             <span className={`status-pill status-${String(q.status).toLowerCase()}`}>
@@ -656,7 +658,7 @@ export default function FulfillmentPage() {
                       disabled={actionLoading}
                       onClick={() => handleCreatePlan(activeQuote.id)}
                     >
-                      {actionLoading ? 'Generating...' : '⚡ Generate Fulfillment Plan'}
+                      {actionLoading ? 'Generating...' : <><Icon name="zap" size={14} style={{ marginRight: '6px' }} /> Generate Fulfillment Plan</>}
                     </button>
                   )}
 
@@ -667,7 +669,7 @@ export default function FulfillmentPage() {
                         className="btn btn-sm btn-outline"
                         onClick={() => setIsOverrideModalOpen(true)}
                       >
-                        ✏️ Manual Override
+                        <Icon name="edit" size={14} style={{ marginRight: '6px' }} /> Manual Override
                       </button>
                       <button
                         type="button"
@@ -675,7 +677,7 @@ export default function FulfillmentPage() {
                         disabled={actionLoading}
                         onClick={() => handleAcceptPlan(activePlan.id)}
                       >
-                        ✓ Accept & Reserve Stock
+                        <Icon name="check" size={14} style={{ marginRight: '6px' }} /> Accept & Reserve Stock
                       </button>
                       <button
                         type="button"
@@ -705,7 +707,7 @@ export default function FulfillmentPage() {
                     <h4>Proposed Allocation Recommendation</h4>
                     <p style={{ margin: '0.25rem 0', color: '#cbd5e1' }}>
                       Optimal routing: <strong>{recommendation.shipment_count} facility hub(s)</strong> with an
-                      estimated freight cost of <strong>${Number(recommendation.estimated_shipping_cost || 0).toFixed(2)}</strong>.
+                      estimated freight cost of <strong>{formatCurrency(recommendation.estimated_shipping_cost)}</strong>.
                     </p>
                   </div>
                 </div>
@@ -788,8 +790,8 @@ export default function FulfillmentPage() {
                       <td>
                         {wh.city || wh.state ? `${wh.city || ''}, ${wh.state || ''}` : 'Primary Hub'}
                       </td>
-                      <td>${Number(wh.shipping_fixed_cost || 0).toFixed(2)}</td>
-                      <td>${Number(wh.shipping_cost_per_unit || 0).toFixed(2)}</td>
+                      <td>{formatCurrency(wh.shipping_fixed_cost)}</td>
+                      <td>{formatCurrency(wh.shipping_cost_per_unit)}</td>
                       <td>{Number(wh.shipping_cost_weight || 1).toFixed(2)}x</td>
                       <td>
                         <span className={`status-pill ${wh.is_active ? 'status-fulfilled' : 'status-cancelled'}`}>
@@ -1045,8 +1047,9 @@ export default function FulfillmentPage() {
                 type="button"
                 className="modal-close-btn"
                 onClick={() => setDispatchModalAllocation(null)}
+                aria-label="Close"
               >
-                ✕
+                <Icon name="x" size={18} />
               </button>
             </div>
 
@@ -1112,8 +1115,9 @@ export default function FulfillmentPage() {
                 type="button"
                 className="modal-close-btn"
                 onClick={() => setIsAdjustModalOpen(false)}
+                aria-label="Close"
               >
-                ✕
+                <Icon name="x" size={18} />
               </button>
             </div>
 
@@ -1213,8 +1217,9 @@ export default function FulfillmentPage() {
                 type="button"
                 className="modal-close-btn"
                 onClick={() => setIsWarehouseModalOpen(false)}
+                aria-label="Close"
               >
-                ✕
+                <Icon name="x" size={18} />
               </button>
             </div>
 

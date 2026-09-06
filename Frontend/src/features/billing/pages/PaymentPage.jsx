@@ -1,3 +1,4 @@
+import { formatCurrency } from '../../../utils/currency';
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { listInvoices, recordPayment } from '../billing.api';
@@ -101,12 +102,7 @@ export default function PaymentPage() {
     };
   }, [payments]);
 
-  const fmt = (val) =>
-    new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 2,
-    }).format(Number(val) || 0);
+  const fmt = (val) => formatCurrency(val);
 
   const filteredPayments = useMemo(() => {
     return payments.filter((p) => {
@@ -154,7 +150,7 @@ export default function PaymentPage() {
       });
       loadData();
     } catch (err) {
-      alert(err.message || 'Payment processing failed');
+      showToast(err.response?.data?.detail || err.message || 'Payment processing failed', 'error');
     }
   };
 
@@ -163,12 +159,12 @@ export default function PaymentPage() {
       {/* Header */}
       <div className="workspace-header">
         <div>
-          <h1>Payment Terminal & Receipts Ledger</h1>
-          <p>Live transaction audit, reconciliation, and cashier posting terminal</p>
+          <h1>Payment & Cash Settlement Ledger</h1>
+          <p>Real-time audit trail of all customer receivables, wire transfers, and gateway settlements</p>
         </div>
         <div className="header-actions">
           <Link to="/billing" className="btn btn-secondary">
-            ← Billing Hub
+            <Icon name="arrow-left" size={14} style={{ marginRight: '6px' }} /> Billing Hub
           </Link>
           <button
             type="button"
@@ -176,7 +172,7 @@ export default function PaymentPage() {
             onClick={() => setPostModalOpen(true)}
             disabled={openInvoices.length === 0}
           >
-            💳 Post Direct Payment
+            <Icon name="credit-card" size={15} style={{ marginRight: '6px' }} /> Post Direct Payment
           </button>
         </div>
       </div>
@@ -184,7 +180,7 @@ export default function PaymentPage() {
       {/* KPI Cards */}
       <div className="billing-kpi-grid">
         <div className="billing-kpi-card">
-          <div className="kpi-icon-box emerald">💰</div>
+          <div className="kpi-icon-box emerald"><Icon name="cash" size={22} color="#10b981" /></div>
           <div className="kpi-content">
             <span className="kpi-label">Total Collections</span>
             <span className="kpi-value">{fmt(metrics.totalCollected)}</span>
@@ -192,7 +188,7 @@ export default function PaymentPage() {
         </div>
 
         <div className="billing-kpi-card">
-          <div className="kpi-icon-box indigo">🔢</div>
+          <div className="kpi-icon-box indigo"><Icon name="document" size={22} color="#6366f1" /></div>
           <div className="kpi-content">
             <span className="kpi-label">Transactions Settled</span>
             <span className="kpi-value">{metrics.count}</span>
@@ -200,7 +196,7 @@ export default function PaymentPage() {
         </div>
 
         <div className="billing-kpi-card">
-          <div className="kpi-icon-box cyan">🏦</div>
+          <div className="kpi-icon-box cyan"><Icon name="bank" size={22} color="#06b6d4" /></div>
           <div className="kpi-content">
             <span className="kpi-label">Bank Wire / RTGS</span>
             <span className="kpi-value">{fmt(metrics.bankTotal)}</span>
@@ -208,7 +204,7 @@ export default function PaymentPage() {
         </div>
 
         <div className="billing-kpi-card">
-          <div className="kpi-icon-box amber">⚡</div>
+          <div className="kpi-icon-box amber"><Icon name="zap" size={22} color="#f59e0b" /></div>
           <div className="kpi-content">
             <span className="kpi-label">UPI / Instant</span>
             <span className="kpi-value">{fmt(metrics.upiTotal)}</span>
@@ -250,12 +246,12 @@ export default function PaymentPage() {
 
         {loading ? (
           <div className="empty-state-box">
-            <div className="empty-state-icon">⏳</div>
+            <div className="empty-state-icon"><Icon name="clock" size={32} color="#64748b" /></div>
             <p>Loading transaction history...</p>
           </div>
         ) : filteredPayments.length === 0 ? (
           <div className="empty-state-box">
-            <div className="empty-state-icon">💳</div>
+            <div className="empty-state-icon"><Icon name="credit-card" size={32} color="#64748b" /></div>
             <h3>No Transactions Recorded</h3>
             <p>Post a payment against any open invoice to begin reconciliation</p>
           </div>
@@ -330,13 +326,14 @@ export default function PaymentPage() {
         <div className="billing-modal-backdrop">
           <div className="billing-modal-box">
             <div className="modal-header">
-              <h2>💳 Post Payment Terminal</h2>
+              <h2><Icon name="credit-card" size={20} style={{ marginRight: '8px' }} /> Post Payment Terminal</h2>
               <button
                 type="button"
                 className="modal-close-btn"
                 onClick={() => setPostModalOpen(false)}
+                aria-label="Close"
               >
-                ✕
+                <Icon name="x" size={18} />
               </button>
             </div>
             <form onSubmit={handlePostPayment}>
@@ -428,7 +425,13 @@ export default function PaymentPage() {
       {/* Toast */}
       {toast && (
         <div className={`billing-toast ${toast.type}`}>
-          <span>{toast.type === 'success' ? '✅' : '⚠️'}</span>
+          <span>
+            {toast.type === 'success' ? (
+              <Icon name="check-circle" size={18} color="#10b981" />
+            ) : (
+              <Icon name="alert-triangle" size={18} color="#f59e0b" />
+            )}
+          </span>
           <span>{toast.message}</span>
         </div>
       )}
