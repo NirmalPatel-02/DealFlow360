@@ -115,7 +115,7 @@ async def get_portal_quote(
     result = await db.execute(
         select(Quotation)
         .options(
-            selectinload(Quotation.lines)
+            selectinload(Quotation.lines).selectinload(QuoteLine.product)
         )
         .where(
             Quotation.id == session.quotation_id
