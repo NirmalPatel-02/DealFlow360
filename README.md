@@ -1,223 +1,63 @@
 # DealFlow360
-<<<<<<< Updated upstream
-An Intelligent, Self Governing Sales Operations Platform
 
----
+**DealFlow360** is an intelligent B2B deal-operations platform that connects the complete quote-to-cash lifecycle in one governed workspace. Sales teams can prepare quotes, apply controlled discounts, route exceptions through approvals, fulfil orders across warehouses, manage invoices and subscriptions, and give customers a focused self-service portal.
 
-## 🎯 Role-Based Dashboard Implementation
+## Highlights
 
-**Status:** ✅ **COMPLETE & READY TO TEST**
-
-A production-ready, role-based dashboard system connecting your React frontend to your FastAPI backend.
-
-### Quick Start
-
-```bash
-# Terminal 1: Backend
-cd backend && uvicorn app.main:app --reload
-
-# Terminal 2: Frontend  
-cd Frontend && npm run dev
-```
-
-Then login as different roles to see role-specific dashboards!
-
-### What's Included
-
-✅ **3 Role-Based Dashboards**
-- Sales Rep Dashboard (create/manage quotations)
-- Sales Manager Dashboard (review/approve quotations)
-- Finance/Operations Dashboard (second-level approvals, fulfillment)
-
-✅ **Complete API Integration**
-- 18 API functions for quotation CRUD
-- Automatic token refresh on 401
-- Comprehensive error handling
-- No mock data - all real backend APIs
-
-✅ **Professional UI/UX**
-- Responsive design with mobile support
-- Color-coded status badges
-- Risk score visualization
-- Loading states, empty states, error handling
-
-✅ **Complete Documentation**
-- COMPLETE_WORKFLOW.md - End-to-end process
-- QUICK_TEST_GUIDE.md - Testing instructions  
-- INTERVIEW_PREP.md - Interview Q&A prep
-- ROLE_API_MAPPING.md - Role→Feature→API mapping
-
-### Key Files
-
-| File | Purpose |
-|------|---------|
-| `Frontend/src/features/dashboard/pages/DashboardPage.jsx` | Main entry (routes by role) |
-| `Frontend/src/features/quotations/quotations.api.js` | API functions |
-| `Frontend/src/features/quotations/quotations.hooks.js` | React hooks for state |
-| `Frontend/src/features/dashboard/components/SalesRepDashboard.jsx` | Rep dashboard |
-| `Frontend/src/features/dashboard/components/SalesManagerDashboard.jsx` | Manager dashboard |
-| `Frontend/src/features/dashboard/components/FinanceDashboard.jsx` | Finance dashboard |
-
-### Documentation Priority
-
-1. **COMPLETE_WORKFLOW.md** - Understand the quotation flow (start here!)
-2. **DASHBOARD_IMPLEMENTATION.md** - Technical architecture
-3. **QUICK_TEST_GUIDE.md** - How to test locally
-4. **INTERVIEW_PREP.md** - Interview preparation
-5. **ROLE_API_MAPPING.md** - Which roles access which APIs
-
-### Quick Facts
-
-- 🔐 **Auth:** Bearer tokens + HTTP-only refresh cookies  
-- 🎭 **Roles:** sales_rep, sales_manager, finance, operations, customer (placeholder), admin
-- 📊 **Dashboards:** 3 implemented + 1 placeholder
-- 🔌 **API Functions:** 18 quotation/approval functions
-- 🎣 **React Hooks:** 6 custom hooks for state management
-- ⚠️ **Error Handling:** 4-layer comprehensive error handling
-- 📈 **Approval Levels:** 2 (MANAGER, MANAGER_FINANCE)
-- 📋 **Quote Statuses:** 9 distinct statuses
-
-### Testing
-
-Quick 5-minute test:
-```
-1. Login as sales_rep → See Sales Rep Dashboard
-2. Logout, login as sales_manager → See Manager Dashboard  
-3. Logout, login as finance → See Finance Dashboard
-```
-
-For full integration testing, see **QUICK_TEST_GUIDE.md**.
-
-### Workflow Overview
-
-```
-Sales Rep creates quote (DRAFT)
-    ↓ submits
-Sales Manager reviews (PENDING_APPROVAL)
-    ↓ approves
-Finance approves (if needed)
-    ↓
-Status changes to APPROVED
-    ↓
-Finance creates Order & Invoice
-    ↓
-Fulfillment & Payment
-```
-
-See **COMPLETE_WORKFLOW.md** for detailed workflow with diagrams.
-
-### What's Next
-
-High priority tasks:
-1. Quotation detail page (view full breakdown)
-2. Create/edit quotation form
-3. Approval action modals (approve/reject/return)
-4. Invoice and order management
-
----
-=======
-
-**DealFlow360** is an intelligent sales-operations platform for B2B teams. It turns the quote-to-cash workflow into a governed deal engine: sales teams can build quotations, apply controlled discounts, route exceptional deals for approval, surface upsell and cross-sell opportunities, and manage one-time and subscription billing from one system.
-
-The project was built for a hackathon brief focused on realistic B2B selling, where pricing rules, approval workflows, recurring revenue, and operational controls matter as much as creating a quote.
-
-## What Is Implemented
-
-### Identity and access
-
-- User registration with email verification through one-time passwords (OTPs)
-- Login, logout, JWT access tokens, refresh-token rotation, and secure HTTP-only refresh cookies
-- Password reset and password-change flows
-- Account lockout and OTP rate/cooldown controls configurable through environment variables
-- Role-based access control for sales reps, sales managers, finance/operations, administrators, and customers
-
-### Sales configuration
-
-- Customer and contact management, including customer tiers
-- Categories, products, variants, and price lists
-- Customer-tier and category-based discount rules
-- Configurable approval chains and discount bands
-- Audit records for approval and billing activities
-
-### Quotation and deal governance
-
-- Draft quotation creation, updates, listing, and line-item management
-- One-time and recurring quote lines
-- Discount evaluation with blended deal-risk calculation
-- Approval routing, submission, review actions, and approval history
-- Support for approved, rejected, revision-required, sent, negotiation, confirmed, and cancelled quotation states
-
-### Recommendations and billing
-
-- Rule-based upsell and cross-sell recommendations with promotion support
-- Accepting a recommendation directly into a quotation
-- Orders, invoices, invoice items, payments, refunds, and credit notes
-- Subscription plans, subscription creation and modification, cancellations, billing schedules, and recurring invoice generation
-- Proration calculations for mid-cycle subscription changes
+- Role-based workspaces for sales, sales management, finance/operations, administrators, and customers
+- Secure account lifecycle: registration, email OTP verification, login, refresh sessions, password recovery, password changes, rate limiting, and account lockout controls
+- Customer, contact, product, variant, price-list, category, and customer-tier management
+- One-time and recurring quotation lines with discounts, margin/risk evaluation, approval routing, review history, and audit records
+- Rule-based upsell and cross-sell recommendations, promotion boosts, and one-click addition to a quote
+- Order, invoice, payment, refund, credit-note, subscription, recurring billing, and proration support
+- Warehouse inventory, allocation planning, split fulfilment, manual overrides, replenishment rules, and backorders
+- Customer quote sharing, acceptance, and negotiation workflows
+- Deal-health monitoring, dashboards, and sales, approval, and billing reports
 
 ## Technology
 
-| Area            | Choice                                         |
-| --------------- | ---------------------------------------------- |
-| API             | FastAPI                                        |
-| Validation      | Pydantic v2                                    |
-| Database access | SQLAlchemy 2 async ORM                         |
-| Database driver | `asyncmy` (async MySQL/MariaDB)                |
-| Migrations      | Alembic                                        |
-| Authentication  | JWT, Argon2 password hashing, refresh sessions |
-| Email           | Brevo API integration                          |
-| Server          | Uvicorn                                        |
-| Python          | 3.13 or newer                                  |
+| Area | Stack |
+| --- | --- |
+| Frontend | React 19, React Router, Vite, Tailwind CSS |
+| API | FastAPI, Uvicorn, Pydantic v2 |
+| Data | SQLAlchemy 2 async ORM, MySQL/MariaDB, Alembic |
+| Security | JWT access tokens, HTTP-only refresh cookies, Argon2 password hashing |
+| Email | Brevo API integration |
+| Testing | Pytest |
 
-## Architecture
+## Project Structure
 
 ```text
-Frontend
-   |
-   v
-FastAPI routers
-   |-- /api/v1/auth          Authentication and session lifecycle
-   |-- /api/customers        Customers and contacts
-   |-- /api/catalog          Products, variants, and price lists
-   |-- /api/governance       Discount rules and approval configuration
-   |-- /api/quotations       Quote and quote-line lifecycle
-   |-- /api/approvals        Deal evaluation and approval actions
-   |-- /api/recommendations  Upsell, cross-sell, and promotions
-   `-- /api/*                Orders, invoices, payments, subscriptions
-   |
-   v
-Service layer -> SQLAlchemy async sessions -> MySQL/MariaDB
+DealFlow360/
+|-- Frontend/                    React + Vite application
+|   |-- src/app/                 Application setup, routes, and providers
+|   |-- src/features/            Domain-focused UI and API modules
+|   |-- src/guards/              Authentication and role guards
+|   `-- src/services/            API client and browser storage helpers
+|-- backend/
+|   |-- app/api/                 FastAPI route modules
+|   |-- app/core/                Configuration and security
+|   |-- app/db/                  Async database engine and sessions
+|   |-- app/models/              SQLAlchemy models and enums
+|   |-- app/schemas/             Pydantic request and response contracts
+|   |-- app/services/            Business rules and domain logic
+|   |-- alembic/                 Database migrations
+|   |-- scripts/                 Development/demo-data utilities
+|   `-- tests/                   Backend test suite
+`-- README.md
 ```
-
-The backend follows a clear separation of concerns:
-
-- `app/api/` exposes HTTP endpoints and applies authorization.
-- `app/schemas/` defines request and response contracts.
-- `app/services/` contains business logic such as approval evaluation, quote calculations, recommendations, and billing proration.
-- `app/models/` contains SQLAlchemy persistence models and enums.
-- `alembic/` tracks schema migrations.
-
-## User Roles
-
-| Role                 | Main responsibilities                                                       |
-| -------------------- | --------------------------------------------------------------------------- |
-| Sales Rep            | Manages customers and builds quotations.                                    |
-| Sales Manager        | Reviews eligible approval requests and governs sales decisions.             |
-| Finance / Operations | Participates in higher-risk approvals and billing operations.               |
-| Admin                | Configures catalog, pricing, governance, promotions, and platform settings. |
-| Customer             | Reserved for customer-facing access and quotation workflows.                |
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.13+
-- MySQL or MariaDB
-- A database created for DealFlow360
+- Python 3.13 or newer
+- Node.js 20 or newer
+- MySQL 8+ or MariaDB
 
-### 1. Configure the environment
+### 1. Configure the backend
 
-From `backend`, create a `.env` file. Do not commit this file.
+Create a MySQL/MariaDB database, then create `backend/.env` with the following values:
 
 ```env
 APP_NAME=DealFlow360 API
@@ -230,148 +70,110 @@ CORS_ORIGINS=http://localhost:3000
 COOKIE_SECURE=false
 COOKIE_SAMESITE=lax
 
-# Optional: required when sending real emails through Brevo
+# Optional: required only when sending email through Brevo
 BREVO_API_KEY=
 BREVO_SENDER_NAME=DealFlow360
 BREVO_SENDER_EMAIL=
 ```
 
-The remaining settings have secure development defaults and can be overridden as needed: token lifetime, password length, OTP expiry, resend cooldown, maximum OTP attempts, and login lockout behavior.
-
-### 2. Install dependencies
-
-```bash
-cd backend
-python -m venv .venv
-```
-
-Activate the environment:
+### 2. Install backend dependencies and migrate the database
 
 ```powershell
-# PowerShell
+cd backend
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-```
-
-```bash
-# macOS/Linux
-source .venv/bin/activate
-```
-
-Then install packages:
-
-```bash
 pip install -r requirements.txt
-```
-
-`uv` users can instead run `uv sync` from the `backend` directory.
-
-### 3. Apply database migrations
-
-```bash
 alembic upgrade head
 ```
 
-### 4. Run the API
+On macOS/Linux, activate the environment with `source .venv/bin/activate`.
 
-```bash
+### 3. Start the API
+
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
 uvicorn app.main:app --reload
 ```
 
-The API is available at `http://127.0.0.1:8000`.
+The API runs at `http://127.0.0.1:8000`.
 
-- Interactive API documentation: `http://127.0.0.1:8000/docs`
+- OpenAPI documentation: `http://127.0.0.1:8000/docs`
 - ReDoc: `http://127.0.0.1:8000/redoc`
-- Health check: `GET http://127.0.0.1:8000/health`
+- Health check: `http://127.0.0.1:8000/health`
 
-## API Overview
+### 4. Install and start the frontend
 
-All protected endpoints require an access token:
+In a second terminal:
 
-```http
-Authorization: Bearer <access_token>
+```powershell
+cd Frontend
+npm install
+npm run dev
 ```
 
-| Area            | Base path              | Capabilities                                                                                |
-| --------------- | ---------------------- | ------------------------------------------------------------------------------------------- |
-| Authentication  | `/api/v1/auth`         | Register, verify email, login, refresh, logout, profile, password recovery                  |
-| Customers       | `/api/customers`       | Customer and contact CRUD, search, and deactivation                                         |
-| Catalog         | `/api/catalog`         | Categories, products, variants, price lists, and price-list items                           |
-| Governance      | `/api/governance`      | Approval chains, approval bands, discount rules, and discount evaluation                    |
-| Quotations      | `/api/quotations`      | Quotations and quote-line CRUD                                                              |
-| Approvals       | `/api/approvals`       | Quote evaluation, submission, current approval history, and reviewer actions                |
-| Recommendations | `/api/recommendations` | Recommendation rules, promotions, quote recommendations, and acceptance                     |
-| Billing         | `/api`                 | Orders, plans, invoices, payments, refunds, subscriptions, schedules, and billing summaries |
+Open `http://localhost:3000`. Vite proxies `/api` requests to the local FastAPI server during development.
 
-For the exact request and response schemas, use the live OpenAPI documentation at `/docs`.
+## Demo Data
 
-## Core Deal Flow
+After applying migrations, create active users for a sales rep, sales manager, and finance/operations role. You can then populate an otherwise empty development database with connected demo data:
 
-1. An authorized sales user creates a customer and contact, then builds a quotation from catalog products.
-2. The quote can contain one-time and recurring lines, with discounts applied at the appropriate level.
-3. The deal engine evaluates discount and approval requirements against configured governance rules.
-4. The quote is either approved automatically or submitted through the required manager and finance approval path.
-5. Recommendation rules and active promotions can propose profitable related products; accepted suggestions are added to the quote.
-6. Once an order is created, billing supports invoices, payment capture, refunds, recurring subscriptions, schedules, and proration.
-
-## Database Migrations
-
-Alembic migrations cover the platform's evolving schema, including authentication, catalog and price lists, customers and contacts, quotations, approval workflows, discount governance, recommendations, and billing.
-
-Create a new migration after model changes:
-
-```bash
-alembic revision --autogenerate -m "describe the change"
-alembic upgrade head
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
+python scripts/seed_hackathon_demo.py
 ```
 
-## Testing
+The script intentionally refuses to run when customer, product, quote, or order data already exists. It is for empty development databases only.
 
-The repository includes focused billing tests, including proration behavior. Run them from `backend` after installing your test runner:
+## Core Workflow
 
-```bash
+1. A sales user creates a customer and quotation with one-time or recurring items.
+2. The platform applies pricing and discount rules, then evaluates deal risk and required approvals.
+3. Managers and finance/operations users review exceptions and record decisions in the approval history.
+4. Approved quotes can be shared with customers, negotiated, accepted, converted to orders, and fulfilled from warehouses.
+5. Finance tracks invoices, payments, refunds, subscriptions, billing schedules, and proration changes.
+
+## API Areas
+
+All protected endpoints require an `Authorization: Bearer <access_token>` header. Explore exact request and response contracts through the live OpenAPI documentation.
+
+| Area | Base path | Scope |
+| --- | --- | --- |
+| Authentication | `/api/v1/auth` | Registration, OTP verification, login, refresh, profile, and password flows |
+| Customers | `/api/customers` | Customers and contacts |
+| Catalog | `/api/catalog` | Categories, products, variants, and price lists |
+| Governance | `/api/governance` | Discount rules, approval chains, and approval bands |
+| Quotations | `/api/quotations` | Quotes and quote lines |
+| Approvals | `/api/approvals` | Deal evaluation, submissions, history, and actions |
+| Recommendations | `/api/recommendations` | Recommendations and promotions |
+| Fulfilment | `/api/fulfillment` | Warehouses, inventory, allocation, and backorders |
+| Customer portal | `/api/portal` | Quote access, negotiations, and confirmation |
+| Billing | `/api` | Orders, invoices, payments, subscriptions, and schedules |
+| Operations | `/api/admin`, `/api/reports`, `/api/deal-health` | Administration, reporting, and deal monitoring |
+
+## Useful Commands
+
+```powershell
+# Backend tests
+cd backend
 pytest
+
+# Frontend quality checks
+cd Frontend
+npm run lint
+npm run build
 ```
 
-## Project Structure
+## Security and Deployment Notes
 
-```text
-DealFlow360/
-|-- Frontend/                 Frontend application
-|-- backend/
-|   |-- app/
-|   |   |-- api/              FastAPI route modules and dependencies
-|   |   |   |-- v1/           Versioned authentication API
-|   |   |-- core/             Settings and security helpers
-|   |   |-- db/               Async engine and session setup
-|   |   |-- models/           SQLAlchemy entities and enums
-|   |   |-- schemas/          Pydantic API contracts
-|   |   |-- services/         Domain and business logic
-|   |   `-- main.py           FastAPI application factory
-|   |-- alembic/              Database migration history
-|   |-- tests/                Automated tests
-|   |-- requirements.txt      Pinned Python dependencies
-|   `-- pyproject.toml        Project metadata and dependency constraints
-`-- README.md
-```
-
-## Roadmap
-
-The following items are part of the wider DealFlow360 product vision in the hackathon brief and are not represented as completed backend modules in this repository yet:
-
-- Warehouse inventory, fulfillment splitting, and backorder handling
-- Deal-health monitoring, anomaly detection, analytics, and report exports
-- Customer portal negotiation, line-level discussion, and counter-offers
-- Pipeline/Kanban views and fulfillment operations UI
-
-## Security Notes
-
-- Keep `SECRET_KEY`, `DATABASE_URL`, and Brevo credentials out of source control.
-- Use a strong random `SECRET_KEY` in every non-development environment.
-- Set `COOKIE_SECURE=true` behind HTTPS in staging and production.
-- Restrict `CORS_ORIGINS` to trusted frontend domains before deployment.
-- Apply Alembic migrations through your deployment process rather than manually changing production schema.
+- Never commit `backend/.env`, credentials, or production connection strings.
+- Set a unique, securely generated `SECRET_KEY` in every environment.
+- Set `COOKIE_SECURE=true` behind HTTPS.
+- Restrict `CORS_ORIGINS` and `FRONTEND_URL` to your deployed frontend domains.
+- Apply Alembic migrations as part of deployment; do not alter production tables manually.
+- Build the frontend with `npm run build` and serve the `Frontend/dist` output through your preferred static host or web server.
 
 ## License
 
-No license has been specified for this project yet.
->>>>>>> Stashed changes
+No license has been specified for this project.
