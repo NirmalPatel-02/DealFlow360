@@ -128,11 +128,11 @@ export default function CustomerPortalPage() {
             className="portal-section-card"
             style={{ maxWidth: '520px', margin: '4rem auto', textAlign: 'center' }}
           >
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem', color: '#818cf8' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem', color: '#a44a3f' }}>
               <Icon name="lock" size={48} />
             </div>
-            <h2 style={{ color: '#ffffff', marginBottom: '0.5rem' }}>Customer Portal Authentication</h2>
-            <p style={{ color: '#94a3b8', fontSize: '0.92rem', marginBottom: '1.5rem' }}>
+            <h2 style={{ color: '#3f2525', marginBottom: '0.5rem' }}>Customer Portal Authentication</h2>
+            <p style={{ color: '#6c757d', fontSize: '0.92rem', marginBottom: '1.5rem' }}>
               Please enter your secure access token from your quotation invitation email to view
               commercial terms, submit negotiations, or confirm your order.
             </p>
@@ -197,19 +197,19 @@ export default function CustomerPortalPage() {
       <main className="portal-main">
         {loading && !quote ? (
           <div className="portal-section-card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem', color: '#818cf8' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem', color: '#a44a3f' }}>
               <Icon name="clock" size={36} />
             </div>
             <h3>Loading Your Commercial Agreement...</h3>
-            <p style={{ color: '#94a3b8' }}>Verifying authenticated session credentials</p>
+            <p style={{ color: '#6c757d' }}>Verifying authenticated session credentials</p>
           </div>
         ) : error ? (
           <div className="portal-section-card" style={{ textAlign: 'center', padding: '3.5rem 2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem', color: '#f87171' }}>
               <Icon name="alert-triangle" size={36} />
             </div>
-            <h3 style={{ color: '#f87171' }}>Access Restricted</h3>
-            <p style={{ color: '#94a3b8', maxWidth: '480px', margin: '0.5rem auto 1.5rem auto' }}>
+            <h3 style={{ color: '#a33f3f' }}>Access Restricted</h3>
+            <p style={{ color: '#6c757d', maxWidth: '480px', margin: '0.5rem auto 1.5rem auto' }}>
               {error}
             </p>
             <button
@@ -229,7 +229,7 @@ export default function CustomerPortalPage() {
             {/* Success Banner if Confirmed */}
             {isConfirmed && (
               <div className="portal-success-banner">
-                <div className="success-banner-icon" style={{ color: '#34d399' }}>
+                <div className="success-banner-icon" style={{ color: '#287a55' }}>
                   <Icon name="check-circle" size={32} />
                 </div>
                 <div className="success-banner-content">
@@ -293,7 +293,7 @@ export default function CustomerPortalPage() {
               </div>
 
               <div className="hero-right">
-                <span style={{ fontSize: '0.8rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <span style={{ fontSize: '0.8rem', color: '#6c757d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Net Agreement Total
                 </span>
                 <div className="hero-grand-total">{fmt(quote.grand_total)}</div>
@@ -401,7 +401,7 @@ export default function CustomerPortalPage() {
                   <span className="grand-total-val">{fmt(quote.grand_total)}</span>
                 </div>
 
-                <p style={{ margin: '1.25rem 0 0 0', fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.5 }}>
+                  <p style={{ margin: '1.25rem 0 0 0', fontSize: '0.8rem', color: '#6c757d', lineHeight: 1.5 }}>
                   * All pricing is subject to the agreed delivery schedule and milestone terms. Applicable
                   taxes are calculated based on registered tax jurisdictions.
                 </p>
@@ -444,13 +444,13 @@ export default function CustomerPortalPage() {
             position: 'fixed',
             bottom: '2rem',
             right: '2rem',
-            background: '#1e293b',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            borderLeft: `4px solid ${toast.type === 'error' ? '#ef4444' : '#10b981'}`,
+            background: '#ffffff',
+            border: '1px solid #d8dce0',
+            borderLeft: `4px solid ${toast.type === 'error' ? '#a33f3f' : '#287a55'}`,
             borderRadius: '10px',
             padding: '1rem 1.5rem',
-            color: '#f8fafc',
-            boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+            color: '#3f2525',
+            boxShadow: '0 10px 25px rgba(63, 37, 37, 0.16)',
             zIndex: 1100,
             display: 'flex',
             alignItems: 'center',
