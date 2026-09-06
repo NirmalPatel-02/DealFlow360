@@ -39,7 +39,7 @@ async def create_category(db: AsyncSession, data: CategoryCreate) -> Category:
 async def list_categories(
     db: AsyncSession,
     search: str | None = None,
-    is_active: bool | None = True,
+    is_active: bool | None = None,
 ) -> list[Category]:
     query = select(Category).order_by(Category.name)
 

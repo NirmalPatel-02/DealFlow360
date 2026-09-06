@@ -67,7 +67,7 @@ async def create_category_route(
 )
 async def list_categories_route(
     search: str | None = Query(default=None, max_length=100),
-    is_active: bool | None = True,
+    is_active: bool | None = None,
     db: AsyncSession = Depends(get_db),
     _: User = Depends(require_internal_user),
 ):
