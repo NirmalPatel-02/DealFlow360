@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import {
   listInvoices,
   cancelInvoice,
-  recordPayment,
   listOrders,
   createOrderFromQuote,
   createInvoice,
@@ -36,15 +35,6 @@ export default function InvoiceListPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [typeFilter, setTypeFilter] = useState('ALL');
-
-  // Modals state
-  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-  const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [paymentForm, setPaymentForm] = useState({
-    amount: '',
-    payment_method: 'BANK_TRANSFER',
-    payment_reference: '',
-  });
 
   const [convertModalOpen, setConvertModalOpen] = useState(false);
   const [quoteIdInput, setQuoteIdInput] = useState('');
@@ -159,36 +149,6 @@ export default function InvoiceListPage() {
       return matchQuery && matchStatus && matchType;
     });
   }, [invoices, searchQuery, statusFilter, typeFilter]);
-
-  // Payment Modal Handlers
-  const handleOpenPaymentModal = (invoice) => {
-    setSelectedInvoice(invoice);
-    const due = Number(invoice.amount_due) || 0;
-    setPaymentForm({
-      amount: due > 0 ? due.toFixed(2) : '',
-      payment_method: 'BANK_TRANSFER',
-      payment_reference: `PAY-${Date.now().toString().slice(-6)}`,
-    });
-    setPaymentModalOpen(true);
-  };
-
-  const handleSubmitPayment = async (e) => {
-    e.preventDefault();
-    if (!selectedInvoice) return;
-    try {
-      const payload = {
-        amount: parseFloat(paymentForm.amount),
-        payment_method: paymentForm.payment_method,
-        payment_reference: paymentForm.payment_reference.trim(),
-      };
-      await recordPayment(selectedInvoice.id, payload);
-      showToast(`Payment recorded for Invoice ${selectedInvoice.invoice_number}`);
-      setPaymentModalOpen(false);
-      loadData();
-    } catch (err) {
-      alert(err.message || 'Payment processing error');
-    }
-  };
 
   // Cancel Invoice
   const handleCancelInvoice = async (invoiceId) => {
@@ -601,18 +561,6 @@ export default function InvoiceListPage() {
                               View
                             </Link>
 
-                            {/* {Number(inv.amount_due) > 0 &&
-                              inv.status !== 'CANCELLED' &&
-                              inv.status !== 'VOID' && (
-                                <button
-                                  type="button"
-                                  className="btn btn-sm btn-primary"
-                                  onClick={() => handleOpenPaymentModal(inv)}
-                                >
-                                  <Icon name="credit-card" size={13} style={{ marginRight: '4px' }} /> Pay
-                                </button>
-                              )} */}
-
                             {['DRAFT', 'ISSUED'].includes(inv.status) && (
                               <button
                                 type="button"
@@ -864,117 +812,7 @@ export default function InvoiceListPage() {
         </div>
       )}
 
-      {/* MODAL 1: Record Payment */}
-      {paymentModalOpen && selectedInvoice && (
-        <div className="billing-modal-backdrop">
-          <div className="billing-modal-box">
-            <div className="modal-header">
-              <h2><Icon name="credit-card" size={20} style={{ marginRight: '8px' }} /> Record Payment</h2>
-              <button
-                type="button"
-                className="modal-close-btn"
-                onClick={() => setPaymentModalOpen(false)}
-                aria-label="Close"
-              >
-                <Icon name="x" size={18} />
-              </button>
-            </div>
-            <form onSubmit={handleSubmitPayment}>
-              <div className="modal-body">
-                <div
-                  style={{
-                    background: '#faf8f2',
-                    border: '1px solid var(--line, #e5e7eb)',
-                    padding: '0.85rem',
-                    borderRadius: '8px',
-                    fontSize: '0.85rem',
-                    color: 'var(--ink, #1f2937)',
-                  }}
-                >
-                  <div>
-                    <strong>Invoice:</strong> {selectedInvoice.invoice_number}
-                  </div>
-                  <div>
-                    <strong>Total Amount:</strong> {fmt(selectedInvoice.total_amount)}
-                  </div>
-                  <div>
-                    <strong>Already Paid:</strong> {fmt(selectedInvoice.amount_paid)}
-                  </div>
-                  <div style={{ color: '#dc2626', fontWeight: 600 }}>
-                    <strong>Balance Due:</strong> {fmt(selectedInvoice.amount_due)}
-                  </div>
-                </div>
-
-                <div className="billing-form-group">
-                  <label>Amount to Collect ({selectedInvoice.currency || 'INR'}) *</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    max={selectedInvoice.amount_due}
-                    className="billing-input"
-                    value={paymentForm.amount}
-                    onChange={(e) =>
-                      setPaymentForm({ ...paymentForm, amount: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="billing-form-group">
-                  <label>Payment Method *</label>
-                  <select
-                    className="billing-select"
-                    value={paymentForm.payment_method}
-                    onChange={(e) =>
-                      setPaymentForm({ ...paymentForm, payment_method: e.target.value })
-                    }
-                    required
-                  >
-                    <option value="BANK_TRANSFER">Bank Wire / NEFT / RTGS</option>
-                    <option value="CARD">Credit / Debit Card</option>
-                    <option value="UPI">UPI (Unified Payments Interface)</option>
-                    <option value="CASH">Cash Deposit</option>
-                    <option value="OTHER">Other / Cheque</option>
-                  </select>
-                </div>
-
-                <div className="billing-form-group">
-                  <label>Payment Reference / UTR Number *</label>
-                  <input
-                    type="text"
-                    className="billing-input"
-                    placeholder="e.g. UTR-9823419082 or TXN-4928"
-                    value={paymentForm.payment_reference}
-                    onChange={(e) =>
-                      setPaymentForm({
-                        ...paymentForm,
-                        payment_reference: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={() => setPaymentModalOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Confirm Payment
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 2: Convert Quote to Order */}
+      {/* MODAL: Convert Quote to Order */}
       {convertModalOpen && (
         <div className="billing-modal-backdrop">
           <div className="billing-modal-box">

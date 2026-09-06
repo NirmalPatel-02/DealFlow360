@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getInvoice, recordPayment, cancelInvoice, getOrderBillingSummary } from '../billing.api';
+import { getInvoice, cancelInvoice, getOrderBillingSummary } from '../billing.api';
 import PaymentStatus from '../components/PaymentStatus';
 import BillingBreakdown from '../components/BillingBreakdown';
 import Icon from '../../../components/ui/Icon';
@@ -16,14 +16,6 @@ export default function InvoiceDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
-
-  // Payment Modal
-  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-  const [paymentForm, setPaymentForm] = useState({
-    amount: '',
-    payment_method: 'BANK_TRANSFER',
-    payment_reference: '',
-  });
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -54,34 +46,6 @@ export default function InvoiceDetailsPage() {
   useEffect(() => {
     loadInvoiceData();
   }, [invoiceId]);
-
-  const handleOpenPayment = () => {
-    if (!invoice) return;
-    const due = Number(invoice.amount_due) || 0;
-    setPaymentForm({
-      amount: due > 0 ? due.toFixed(2) : '',
-      payment_method: 'BANK_TRANSFER',
-      payment_reference: `PAY-${Date.now().toString().slice(-6)}`,
-    });
-    setPaymentModalOpen(true);
-  };
-
-  const handleSubmitPayment = async (e) => {
-    e.preventDefault();
-    try {
-      const payload = {
-        amount: parseFloat(paymentForm.amount),
-        payment_method: paymentForm.payment_method,
-        payment_reference: paymentForm.payment_reference.trim(),
-      };
-      await recordPayment(invoice.id, payload);
-      showToast('Payment recorded successfully');
-      setPaymentModalOpen(false);
-      loadInvoiceData();
-    } catch (err) {
-      alert(err.message || 'Payment processing failed');
-    }
-  };
 
   const handleCancelInvoice = async () => {
     if (!window.confirm('Are you sure you want to cancel and void this invoice?')) return;
@@ -153,18 +117,6 @@ export default function InvoiceDetailsPage() {
           >
             <Icon name="printer" size={15} style={{ marginRight: '6px' }} /> Print / Export PDF
           </button>
-
-          {Number(invoice.amount_due) > 0 &&
-            invoice.status !== 'CANCELLED' &&
-            invoice.status !== 'VOID' && (
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleOpenPayment}
-              >
-                <Icon name="credit-card" size={15} style={{ marginRight: '6px' }} /> Record Payment
-              </button>
-            )}
 
           {['DRAFT', 'ISSUED'].includes(invoice.status) && (
             <button
@@ -329,17 +281,6 @@ export default function InvoiceDetailsPage() {
         <div className="invoice-payments-audit-section">
           <div className="audit-section-header">
             <h3><Icon name="credit-card" size={18} style={{ marginRight: '8px' }} /> Payment & Settlement Ledger ({invoice.payments?.length || 0})</h3>
-            {Number(invoice.amount_due) > 0 &&
-              invoice.status !== 'CANCELLED' &&
-              invoice.status !== 'VOID' && (
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={handleOpenPayment}
-                >
-                  <Icon name="plus" size={14} style={{ marginRight: '4px' }} /> Record Transaction
-                </button>
-              )}
           </div>
 
           {!invoice.payments || invoice.payments.length === 0 ? (
@@ -397,114 +338,6 @@ export default function InvoiceDetailsPage() {
           )}
         </div>
       </div>
-
-      {/* Record Payment Modal */}
-      {paymentModalOpen && (
-        <div className="billing-modal-backdrop">
-          <div className="billing-modal-box">
-            <div className="modal-header">
-              <h2><Icon name="credit-card" size={20} style={{ marginRight: '8px' }} /> Record Payment</h2>
-              <button
-                type="button"
-                className="modal-close-btn"
-                onClick={() => setPaymentModalOpen(false)}
-                aria-label="Close"
-              >
-                <Icon name="x" size={18} />
-              </button>
-            </div>
-            <form onSubmit={handleSubmitPayment}>
-              <div className="modal-body">
-                <div
-                  style={{
-                    background: 'rgba(15, 23, 42, 0.6)',
-                    padding: '0.85rem',
-                    borderRadius: '8px',
-                    fontSize: '0.85rem',
-                  }}
-                >
-                  <div>
-                    <strong>Invoice:</strong> {invoice.invoice_number}
-                  </div>
-                  <div>
-                    <strong>Total Amount:</strong> {fmt(invoice.total_amount)}
-                  </div>
-                  <div>
-                    <strong>Already Paid:</strong> {fmt(invoice.amount_paid)}
-                  </div>
-                  <div style={{ color: '#f87171', fontWeight: 600 }}>
-                    <strong>Balance Due:</strong> {fmt(invoice.amount_due)}
-                  </div>
-                </div>
-
-                <div className="billing-form-group">
-                  <label>Payment Amount ({invoice.currency || 'INR'}) *</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    max={invoice.amount_due}
-                    className="billing-input"
-                    value={paymentForm.amount}
-                    onChange={(e) =>
-                      setPaymentForm({ ...paymentForm, amount: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="billing-form-group">
-                  <label>Payment Method *</label>
-                  <select
-                    className="billing-select"
-                    value={paymentForm.payment_method}
-                    onChange={(e) =>
-                      setPaymentForm({ ...paymentForm, payment_method: e.target.value })
-                    }
-                    required
-                  >
-                    <option value="BANK_TRANSFER">Bank Wire / NEFT / RTGS</option>
-                    <option value="CARD">Credit / Debit Card</option>
-                    <option value="UPI">UPI (Unified Payments Interface)</option>
-                    <option value="CASH">Cash Deposit</option>
-                    <option value="OTHER">Other / Cheque</option>
-                  </select>
-                </div>
-
-                <div className="billing-form-group">
-                  <label>Payment Reference / UTR Number *</label>
-                  <input
-                    type="text"
-                    className="billing-input"
-                    placeholder="e.g. UTR-9823419082 or TXN-4928"
-                    value={paymentForm.payment_reference}
-                    onChange={(e) =>
-                      setPaymentForm({
-                        ...paymentForm,
-                        payment_reference: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setPaymentModalOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Confirm Payment
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Toast */}
       {toast && (
